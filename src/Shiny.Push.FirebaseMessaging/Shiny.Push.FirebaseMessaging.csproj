@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net7.0-ios;net7.0-android</TargetFrameworks>
+        <Description>Shiny Push Integration - Google Firebase Cloud Messaging</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Shiny.Push" Version="3.0.0-alpha-0550" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsIosBuild)' == 'true'">
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="8.10.0.3" />
+    </ItemGroup>
+</Project>
