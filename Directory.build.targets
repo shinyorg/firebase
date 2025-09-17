@@ -1,0 +1,25 @@
+<Project>
+    <ItemGroup>
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.112" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Platforms\**\*.cs" />
+        <Compile Remove="Platforms\**\*.cs" />
+
+        <None Include="$(MSBuildThisFileDirectory)nuget.png" Pack="true" PackagePath="icon.png" />
+        <None Include="$(MSBuildThisFileDirectory)nuget.txt" Pack="true" PackagePath="readme.txt" />
+        <None Include="$(MSBuildThisFileDirectory)readme.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+        <Compile Include="Platforms\Android\**\*.cs" />
+        <Compile Include="Platforms\Shared\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+        <Compile Include="Platforms\Apple\**\*.cs" />
+        <Compile Include="Platforms\Shared\**\*.cs" />
+        <Compile Include="Platforms\iOS\**\*.cs" />
+    </ItemGroup>
+</Project>

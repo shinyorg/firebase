@@ -1,0 +1,16 @@
+﻿<Solution>
+  <Folder Name="/Solution/">
+    <File Path="Directory.build.props" />
+    <File Path="Directory.build.targets" />
+    <File Path="LICENSE.md" />
+    <File Path="nuget.png" />
+    <File Path="nuget.txt" />
+    <File Path="version.json" />
+    <File Path="firebase_ios\Firebase-ios.targets" />
+    <File Path="readme.md" />
+    <File Path=".github\workflows\build.yml" />
+  </Folder>
+  <Project Path="Shiny.Firebase.Analytics.iOS.Binding\Shiny.Firebase.Analytics.iOS.Binding.csproj" Type="Classic C#" />
+  <Project Path="Shiny.Firebase.Messaging.iOS.Binding\Shiny.Firebase.Messaging.iOS.Binding.csproj" Type="Classic C#" />
+  <Project Path="Shiny.Push.FirebaseMessaging\Shiny.Push.FirebaseMessaging.csproj" Type="Classic C#" />
+</Solution>

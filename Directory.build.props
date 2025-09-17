@@ -1,0 +1,52 @@
+﻿<Project>
+    <PropertyGroup>
+        <Authors>Allan Ritchie</Authors>
+        <Owners>aritchie;shinylib</Owners>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <DisableExtraReferences>False</DisableExtraReferences>
+        <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+        <Description>Shiny</Description>
+        <Product>$(AssemblyName) ($(TargetFramework))</Product>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://shinylib.net</PackageProjectUrl>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <PackageReleaseNotes>https://shinylib.net/release-notes/client/v40/</PackageReleaseNotes>
+        <PackageTags>xamarin ios android ble bluetooth bluetoothle push notifications sensors geofences gps location background jobs settings speech sensors</PackageTags>
+        <RepositoryUrl>https://github.com/shinyorg/shiny</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+
+        <CI Condition="'$(GITHUB_ACTIONS)' == 'true'">true</CI>
+        <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <IosTargetFrameworks>net9.0-ios18.0</IosTargetFrameworks>
+        <AndroidTargetFrameworks>net9.0-android35.0</AndroidTargetFrameworks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <IncludeSource>True</IncludeSource>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>True</PublishRepositoryUrl>
+        <EmbedUntrackedSources>True</EmbedUntrackedSources>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
+        <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+        <TargetPlatformMinVersion>35.0</TargetPlatformMinVersion>
+        <IsAndroidBuild>true</IsAndroidBuild>
+        <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
+        <AndroidUseIntermediateDesignerFile>false</AndroidUseIntermediateDesignerFile>
+        <DefineConstants>$(DefineConstants);ANDROID;PLATFORM</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+        <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+        <IsIosBuild>true</IsIosBuild>
+        <DefineConstants>$(DefineConstants);APPLE;PLATFORM</DefineConstants>
+    </PropertyGroup>
+</Project>
