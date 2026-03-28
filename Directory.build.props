@@ -6,15 +6,15 @@
         <Nullable>enable</Nullable>
         <DisableExtraReferences>False</DisableExtraReferences>
         <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-        <Description>Shiny</Description>
+        <Description>Shiny Push - Firebase Cloud Messaging</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://shinylib.net</PackageProjectUrl>
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <PackageReleaseNotes>https://shinylib.net/release-notes/client/v40/</PackageReleaseNotes>
-        <PackageTags>xamarin ios android ble bluetooth bluetoothle push notifications sensors geofences gps location background jobs settings speech sensors</PackageTags>
-        <RepositoryUrl>https://github.com/shinyorg/shiny</RepositoryUrl>
+        <PackageTags>firebase fcm push notifications ios android maui</PackageTags>
+        <RepositoryUrl>https://github.com/shinyorg/firebase</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
 
         <CI Condition="'$(GITHUB_ACTIONS)' == 'true'">true</CI>
@@ -22,8 +22,8 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <IosTargetFrameworks>net9.0-ios18.0</IosTargetFrameworks>
-        <AndroidTargetFrameworks>net9.0-android35.0</AndroidTargetFrameworks>
+        <IosTargetFrameworks>net10.0-ios</IosTargetFrameworks>
+        <AndroidTargetFrameworks>net10.0-android</AndroidTargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
