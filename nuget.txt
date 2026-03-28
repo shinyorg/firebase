@@ -1,8 +1,8 @@
 ﻿-----
-Shiny
+Shiny Push Firebase Messaging
 -----
 
-GitHub: https://github.com/shinyorg/Shiny
+GitHub: https://github.com/shinyorg/firebase
 Docs: https://shinylib.net
 Blog: https://shinylib.net/blog
 
