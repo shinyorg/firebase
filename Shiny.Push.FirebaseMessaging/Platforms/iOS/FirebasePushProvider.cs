@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Shiny.Extensions.Stores;
 using Shiny.Firebase.Analytics.iOS.Binding;
 using Shiny.Firebase.Messaging.iOS.Binding;
 using Foundation;
@@ -9,8 +11,13 @@ using Foundation;
 namespace Shiny.Push;
 
 
-public class FirebasePushProvider(FirebaseConfiguration config) : NotifyPropertyChanged, IPushProvider, IPushTagSupport
+public class FirebasePushProvider(
+    FirebaseConfiguration config,
+    [FromKeyedServices(StoreKeys.Default)] IKeyValueStore store
+) : IPushProvider, IPushTagSupport
 {
+    static string Key(string prop) => $"Shiny.Push.FirebasePushProvider.{prop}";
+
 
     public async Task<string> Register(NSData nativeToken)
     {
@@ -30,11 +37,18 @@ public class FirebasePushProvider(FirebaseConfiguration config) : NotifyProperty
     }
 
 
-    string[]? registeredTags;
+    string[]? registeredTags = store.Get<string[]>(Key(nameof(RegisteredTags)));
     public string[]? RegisteredTags
     {
         get => this.registeredTags;
-        set => this.Set(ref this.registeredTags, value);
+        set
+        {
+            if (this.registeredTags != value)
+            {
+                this.registeredTags = value;
+                store.SetOrRemove(Key(nameof(RegisteredTags)), value);
+            }
+        }
     }
 
 

@@ -4,13 +4,13 @@ using Shiny.Push;
 namespace Shiny;
 
 
-public static class ServiceCollectionExtensions
+public static class FirebaseServiceCollectionExtensions
 {
     public static IServiceCollection AddPushFirebaseMessaging(this IServiceCollection services, FirebaseConfiguration? config = null)
     {
 #if IOS
         services.AddSingleton(config ?? new(true));
-        services.AddShinyService<FirebasePushProvider>();
+        services.AddSingletonAsImplementedInterfaces<FirebasePushProvider>();
         services.AddPush();
 #endif
 #if ANDROID
@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddPushFirebaseMessaging<TPushDelegate>(this IServiceCollection services, FirebaseConfiguration? config = null)
          where TPushDelegate : class, IPushDelegate
     {
-        services.AddShinyService<TPushDelegate>();
+        services.AddSingletonAsImplementedInterfaces<TPushDelegate>();
         services.AddPushFirebaseMessaging(config);
         return services;
     }
