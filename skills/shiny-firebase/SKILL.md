@@ -1,16 +1,21 @@
-# Shiny Firebase Push Notifications Skill
+---
+name: shiny-firebase
+description: Guide for implementing Firebase Cloud Messaging push notifications in .NET MAUI apps using Shiny.Push.FirebaseMessaging on iOS and Android.
+auto_invoke: true
+triggers:
+  - firebase
+  - FCM
+  - firebase cloud messaging
+  - push notifications firebase
+  - AddPushFirebaseMessaging
+  - FirebaseConfiguration
+  - GoogleService-Info.plist
+  - google-services.json
+  - firebase push
+  - firebase messaging
+---
 
-## Triggers
-- firebase
-- FCM
-- firebase cloud messaging
-- push notifications firebase
-- AddPushFirebaseMessaging
-- FirebaseConfiguration
-- GoogleService-Info.plist
-- google-services.json
-- firebase push
-- firebase messaging
+# Shiny Firebase Push Notifications Skill
 
 ## Overview
 
@@ -72,13 +77,19 @@ public class MyPushDelegate : IPushDelegate
         return Task.CompletedTask;
     }
 
-    public Task OnTokenChanged(string token)
+    public Task OnNewToken(string token)
     {
         // Handle FCM token changes - send to your backend
         return Task.CompletedTask;
     }
 
-    public Task OnEntry(PushNotificationResponse response)
+    public Task OnUnRegistered(string token)
+    {
+        // Handle when the device is unregistered from push
+        return Task.CompletedTask;
+    }
+
+    public Task OnEntry(PushNotification notification)
     {
         // Handle when user taps on a notification
         return Task.CompletedTask;
