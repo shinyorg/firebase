@@ -150,6 +150,6 @@ Registers Firebase push notification services. Pass `null` or omit for embedded 
 Registers Firebase push with a custom `IPushDelegate` implementation that handles notification events.
 
 ## Key Source Files
-- `Shiny.Push.FirebaseMessaging/FirebaseConfiguration.cs` - Configuration record
-- `Shiny.Push.FirebaseMessaging/Platforms/Shared/ServiceCollectionExtensions.cs` - DI registration
-- `Shiny.Push.FirebaseMessaging/Platforms/iOS/FirebasePushProvider.cs` - iOS FCM provider
+- `src/Shiny.Push.FirebaseMessaging/FirebaseConfiguration.cs` - Configuration record
+- `src/Shiny.Push.FirebaseMessaging/Platforms/Shared/ServiceCollectionExtensions.cs` - DI registration
+- `src/Shiny.Push.FirebaseMessaging/Platforms/iOS/FirebasePushProvider.cs` - iOS FCM provider

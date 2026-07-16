@@ -1,0 +1,85 @@
+<Project>
+    <!--
+      First-party .NET-for-Android binding over the official Firebase Firestore + Auth AARs.
+      NOT Plugin.Firebase. See plans/mobile-firestore-provider.md and README.md in this folder.
+
+      Builds a complete managed binding of the native Firebase Firestore + Auth SDKs: async CRUD
+      (Get/Set/Update/Delete → Task), real-time (AddSnapshotListener), Query, snapshots, WriteBatch,
+      Transaction, FieldValue, Settings, Source. Requires the Android workload and Maven network access.
+
+      Explicit SDK imports (not <Project Sdk="...">) so the _VerifyJavaDependencies override at the bottom
+      wins — the SDK's copy crashes (XAJDV7004) mapping Firestore's BOM-managed transitive POM deps.
+    -->
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+    <PropertyGroup>
+        <TargetFramework>net10.0-android</TargetFramework>
+        <SupportedOSPlatformVersion>24.0</SupportedOSPlatformVersion>
+        <IsBindingProject>true</IsBindingProject>
+        <Description>First-party .NET binding for the native Firebase Firestore (Android) SDK — used by Shiny.DocumentDb.Firestore.Mobile.</Description>
+        <NoWarn>$(NoWarn);BG8605;BG8606;BG8800;BG8A00</NoWarn>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Firestore 26.4.1 / Auth 24.2.0 / Common 22.1.0 (Google Maven, resolved 2026-07). -->
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-firestore" Version="26.4.1" Repository="Google" Bind="true" />
+        <!-- Native firebase-auth binding is deferred (its internal obfuscated method graph resists a clean
+             bind); identity is provided by the managed Firebase Auth REST service instead. Firestore uses
+             firebase-auth-interop (Bind=false) for its own auth hook. -->
+        <!-- <AndroidMavenLibrary Include="com.google.firebase:firebase-auth" Version="24.2.0" Repository="Google" Bind="true" /> -->
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-common" Version="22.1.0" Repository="Google" Bind="true" />
+        <!-- Play Services Tasks provides com.google.android.gms.tasks.Task<T> — the return type of every
+             async Firestore/Auth method (Get/Set/Update/Delete). Must be BOUND (not just on the classpath)
+             or the binder strips those methods. Basement is Tasks' base dependency. -->
+        <AndroidMavenLibrary Include="com.google.android.gms:play-services-tasks" Version="18.4.1" Repository="Google" Bind="true" />
+        <!-- Basement is bound because it bundles com.google.firebase.FirebaseException (moved here in the
+             Firebase 22.x KMP split) — the base of FirebaseFirestoreException, needed for EventListener.
+             Its noisy gms.common.* packages are stripped via Metadata.xml. -->
+        <AndroidMavenLibrary Include="com.google.android.gms:play-services-basement" Version="18.10.0" Repository="Google" Bind="true" />
+        <!-- Firebase runtime sub-artifacts (transitive of firebase-common/firestore). Classpath-only:
+             packaged + dexed so the runtime classes exist, but not bound to C#. -->
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-components" Version="19.0.1" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-annotations" Version="17.0.0" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-encoders" Version="17.0.0" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-encoders-json" Version="18.0.1" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-auth-interop" Version="20.0.0" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-appcheck-interop" Version="17.1.0" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.firebase:protolite-well-known-types" Version="18.0.1" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.firebase:firebase-database-collection" Version="18.0.1" Repository="Google" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.android.gms:play-services-base" Version="18.9.0" Repository="Google" Bind="false" />
+        <!-- Firestore's gRPC transport + protobuf (Maven Central). Versions pinned to firebase-firestore 26.4.1's POM. -->
+        <AndroidMavenLibrary Include="io.grpc:grpc-android" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="io.grpc:grpc-okhttp" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="io.grpc:grpc-protobuf-lite" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="io.grpc:grpc-stub" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="io.grpc:grpc-core" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="io.grpc:grpc-api" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="io.grpc:grpc-context" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="io.grpc:grpc-util" Version="1.62.2" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.protobuf:protobuf-javalite" Version="3.25.1" Bind="false" />
+        <AndroidMavenLibrary Include="io.perfmark:perfmark-api" Version="0.26.0" Bind="false" />
+        <AndroidMavenLibrary Include="com.google.re2j:re2j" Version="1.6" Bind="false" />
+        <!-- okio comes transitively via the Xamarin.AndroidX.DataStore packages; a manual okio-jvm duplicates it. -->
+        <TransformFile Include="Transforms\Metadata.xml" />
+    </ItemGroup>
+
+    <!-- AndroidX runtime deps Firebase needs at runtime (not packaged by the Maven binding because the
+         dependency resolver is bypassed). The Xamarin.AndroidX.* NuGets package a version-coherent set. -->
+    <ItemGroup>
+        <PackageReference Include="Xamarin.AndroidX.Collection" />
+        <PackageReference Include="Xamarin.AndroidX.Core" />
+        <PackageReference Include="Xamarin.AndroidX.Annotation" />
+        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" />
+        <!-- Full guava (grpc needs it); packaged to coexist with AndroidX's listenablefuture stub. -->
+        <PackageReference Include="Xamarin.Google.Guava" />
+        <!-- Firestore reads heartbeat info via datastore-preferences to attach gRPC request-header metadata. -->
+        <PackageReference Include="Xamarin.AndroidX.DataStore.Preferences" />
+        <PackageReference Include="Xamarin.AndroidX.DataStore.Preferences.Core" />
+    </ItemGroup>
+
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+    <!-- Override (wins because it's defined after the SDK import). Bypasses the crashing verification. -->
+    <Target Name="_VerifyJavaDependencies" />
+</Project>

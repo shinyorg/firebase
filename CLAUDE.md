@@ -1,31 +1,75 @@
 # Shiny Firebase — Working Notes
 
-Guidance for maintaining this repo. Managed code lives in `Shiny.Push.FirebaseMessaging/`, the iOS
-Slim Bindings live in `Shiny.Firebase.Analytics.iOS.Binding/` and `Shiny.Firebase.Messaging.iOS.Binding/`
-(their native Xcode projects sit under `firebase_ios/native/` and are built into `.xcframework`s by
-`firebase_ios/Firebase-ios.targets`), the published Claude Code skill in `skills/`, and the public
-documentation site in a **separate** repo at `~/Desktop/dev/documentation` (rendered to
-https://shinylib.net).
+Guidance for maintaining this repo. The public documentation site is a **separate** repo at
+`~/Desktop/dev/documentation` (rendered to https://shinylib.net).
 
-`Shiny.Push.FirebaseMessaging` wraps Firebase Cloud Messaging on top of the Shiny Push
-infrastructure — the native Firebase iOS SDK via the bindings above on iOS, and `Shiny.Push`'s
-built-in FCM support on Android. The public surface is the `AddPushFirebaseMessaging` extensions and
-the `FirebaseConfiguration` record; everything else builds on the `Shiny.Push` contracts
-(`IPushManager`, `IPushDelegate`, `IPushProvider`, `IPushTagSupport`).
+## Layout
+
+**Every shippable .NET library lives under `src/`.** Native, non-.NET code does not.
+
+```
+src/                                        # all .NET library projects (the only things that pack)
+  Shiny.Push.FirebaseMessaging/             # FCM push, on top of Shiny.Push
+  Shiny.DocumentDb.Firestore.Mobile/        # on-device Firestore provider for Shiny.DocumentDb
+  Shiny.Firebase.Analytics.iOS.Binding/     # iOS Slim Bindings
+  Shiny.Firebase.Messaging.iOS.Binding/
+  Shiny.Firebase.Firestore.iOS.Binding/
+  Shiny.Firebase.Firestore.Android.Binding/ # Android (Java/AAR) binding
+firebase_ios/                               # NOT .NET — native Xcode/Swift wrapper projects…
+  native/{analytics,messaging,firestore}/   #   …built into .xcframeworks by
+  Firebase-ios.targets                      #   Firebase-ios.targets (xcodebuild)
+tests/                                      # managed-surface tests (IsPackable=false)
+samples/                                    # device/emulator verification harnesses (NOT in the .slnx)
+skills/                                     # published Claude Code skills, synced to shinyorg/skills
+plans/
+```
+
+An iOS binding csproj reaches `firebase_ios` with `$(MSBuildThisFileDirectory)../../firebase_ios/…` — **two**
+levels up, because the project sits under `src/`. Getting this wrong is the classic breakage when moving
+projects around.
+
+## Package versions — Central Package Management
+
+**Every package version lives in `Directory.Packages.props`.** Project files carry a bare
+`<PackageReference Include="X" />` with **no `Version`** — adding one back fails the build (NU1008). To change
+or add a package: add a `<PackageVersion Include="X" Version="…" />` centrally, then reference it bare.
+
+`Nerdbank.GitVersioning` is a **`GlobalPackageReference`** — it is injected into *every* project automatically
+with `PrivateAssets=All`. Do **not** add a `PackageReference` for it to a csproj or to
+`Directory.Build.targets`; that is what it looked like before CPM, and the per-project `Update` overrides had
+already drifted (most projects on 3.10.91, the Android binding and samples still on 3.9.50).
+
+If versioning ever looks wrong — e.g. a package suddenly reporting `1.0.0` — suspect that Nerdbank stopped
+being injected. `Shiny.Push.FirebaseMessaging` reading anything other than `5.0.1` is the giveaway, since
+`1.0.0` is MSBuild's default `PackageVersion` and looks plausible.
+
+Two products ship from here, on **different version lines** — see `version.json` at the root vs the nested one
+under the Firestore provider:
+
+- **`Shiny.Push.FirebaseMessaging`** (5.x) wraps Firebase Cloud Messaging on top of the Shiny Push
+  infrastructure — the native Firebase iOS SDK via the bindings above on iOS, and `Shiny.Push`'s built-in FCM
+  support on Android. The public surface is the `AddPushFirebaseMessaging` extensions and the
+  `FirebaseConfiguration` record; everything else builds on the `Shiny.Push` contracts (`IPushManager`,
+  `IPushDelegate`, `IPushProvider`, `IPushTagSupport`).
+- **`Shiny.DocumentDb.Firestore.Mobile`** (1.x) is an on-device Firestore provider for Shiny.DocumentDb. It has
+  its **own `CLAUDE.md`** — read that before touching it; its docs, release notes, and versioning rules all
+  differ from this file's.
 
 ## After every new feature or fix
 
 A change is not "done" until the four artifacts below are in sync. Do all of them in the same
 change unless there's a reason not to.
 
-1. **Code + build** (`Shiny.Push.FirebaseMessaging/`, `Shiny.Firebase.*.iOS.Binding/`)
+1. **Code + build** (`src/Shiny.Push.FirebaseMessaging/`, `src/Shiny.Firebase.*.iOS.Binding/`)
    - Shared registration lives in `Platforms/Shared/ServiceCollectionExtensions.cs`; iOS-specific
      provider logic in `Platforms/iOS/`. Keep the `#if IOS` / `#if ANDROID` paths in sync — the
      Android path delegates to `Shiny.Push`'s `FirebaseConfig`, the iOS path registers
      `FirebasePushProvider`.
-   - There is no test project in this repo; verify with a build across both target frameworks, e.g.
-     `dotnet build Firebase.slnx`. iOS binding builds invoke `xcodebuild` to produce the
+   - Verify with `dotnet build Firebase.slnx`. iOS binding builds invoke `xcodebuild` to produce the
      xcframeworks, so they require a Mac with the matching Xcode/iOS SDK.
+   - There is no test project for the Push code — `tests/` only covers the Firestore provider's managed
+     surface. Samples are **not** in the `.slnx` (they are app heads), so a solution build does not catch a
+     broken reference in one; build them explicitly after moving or renaming projects.
    - When bumping the `Shiny.Push` package reference, confirm the consumed contracts still match
      (the `IPushDelegate` / `IPushProvider` / `FirebaseConfig` signatures) and that the platform
      SDK versions line up with what `Shiny.Push` targets.

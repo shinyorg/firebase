@@ -1,18 +1,25 @@
 ﻿<Solution>
-  <Folder Name="/Solution/">
-    <File Path=".github\workflows\build.yml" />
-    <File Path=".github\workflows\sync-skills.yml" />
-    <File Path="Directory.build.props" />
-    <File Path="Directory.build.targets" />
-    <File Path="LICENSE.md" />
-    <File Path="nuget.png" />
-    <File Path="nuget.txt" />
-    <File Path="skills\shiny-firebase\SKILL.md" />
-    <File Path="version.json" />
-    <File Path="firebase_ios\Firebase-ios.targets" />
-    <File Path="readme.md" />
-  </Folder>
-  <Project Path="Shiny.Firebase.Analytics.iOS.Binding\Shiny.Firebase.Analytics.iOS.Binding.csproj" />
-  <Project Path="Shiny.Firebase.Messaging.iOS.Binding\Shiny.Firebase.Messaging.iOS.Binding.csproj" />
-  <Project Path="Shiny.Push.FirebaseMessaging\Shiny.Push.FirebaseMessaging.csproj" />
+    <Folder Name="/Solution/">
+        <File Path=".github\workflows\build.yml" />
+        <File Path=".github\workflows\sync-skills.yml" />
+        <File Path="Directory.Build.props" />
+        <File Path="Directory.Build.targets" />
+        <File Path="Directory.Packages.props" />
+        <File Path="firebase_ios\Firebase-ios.targets" />
+        <File Path="LICENSE.md" />
+        <File Path="nuget.png" />
+        <File Path="nuget.txt" />
+        <File Path="skills\shiny-firebase\SKILL.md" />
+        <File Path="skills\shiny-firestore-mobile\SKILL.md" />
+        <File Path="src\Shiny.DocumentDb.Firestore.Mobile\version.json" />
+        <File Path="version.json" />
+        <File Path="readme.md" />
+    </Folder>
+    <Project Path="src\Shiny.Firebase.Analytics.iOS.Binding\Shiny.Firebase.Analytics.iOS.Binding.csproj" />
+    <Project Path="src\Shiny.Firebase.Messaging.iOS.Binding\Shiny.Firebase.Messaging.iOS.Binding.csproj" />
+    <Project Path="src\Shiny.Push.FirebaseMessaging\Shiny.Push.FirebaseMessaging.csproj" />
+    <Project Path="src\Shiny.Firebase.Firestore.Android.Binding\Shiny.Firebase.Firestore.Android.Binding.csproj" />
+    <Project Path="src\Shiny.Firebase.Firestore.iOS.Binding\Shiny.Firebase.Firestore.iOS.Binding.csproj" />
+    <Project Path="src\Shiny.DocumentDb.Firestore.Mobile\Shiny.DocumentDb.Firestore.Mobile.csproj" />
+    <Project Path="tests\Shiny.DocumentDb.Firestore.Mobile.Tests\Shiny.DocumentDb.Firestore.Mobile.Tests.csproj" />
 </Solution>

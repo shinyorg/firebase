@@ -1,0 +1,29 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.91"/>
+        <PackageVersion Include="Shiny.Push" Version="5.2.3"/>
+        <PackageVersion Include="Shiny.DocumentDb" Version="11.1.1"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7"/>
+    </ItemGroup>
+
+    <ItemGroup Label="Android binding — the transitive native runtime closure Firestore needs">
+        <PackageVersion Include="Xamarin.AndroidX.Annotation" Version="1.10.0.1"/>
+        <PackageVersion Include="Xamarin.AndroidX.Collection" Version="1.6.0.1"/>
+        <PackageVersion Include="Xamarin.AndroidX.Core" Version="1.19.0.1"/>
+        <PackageVersion Include="Xamarin.AndroidX.DataStore.Preferences" Version="1.2.1.1"/>
+        <PackageVersion Include="Xamarin.AndroidX.DataStore.Preferences.Core" Version="1.2.1.1"/>
+        <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.11.0.1"/>
+        <PackageVersion Include="Xamarin.Google.Guava" Version="33.6.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup Label="Testing">
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1"/>
+        <PackageVersion Include="xunit.v3" Version="3.2.2"/>
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
+    </ItemGroup>
+</Project>

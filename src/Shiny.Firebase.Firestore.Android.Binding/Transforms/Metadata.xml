@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+    <!--
+      Hide Firestore's internal implementation packages — only the top-level com.google.firebase.firestore
+      surface is public API. These leak internal types (DocumentKey, SnapshotVersion, DatabaseId,
+      IReferenceDelegate, …) that break the C# binding.
+    -->
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.auth']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.bundle']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.core']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.index']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.local']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.model']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.model.mutation']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.pipeline']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.pipeline.evaluation']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.proto']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.remote']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore.util']" />
+
+    <!-- Internal firebase-common plumbing that leaks broken generics (IList&lt;IRunnable&gt;). -->
+    <remove-node path="/api/package[@name='com.google.firebase.concurrent']" />
+
+    <!-- LoadBundleTask extends Task but the binder can't satisfy Task's abstract members on it (CS0534);
+         bundle loading isn't part of the adapter surface. -->
+    <remove-node path="/api/package[@name='com.google.firebase.firestore']/class[@name='LoadBundleTask']" />
+
+    <!--
+      Drop java.lang.Comparable<Self> everywhere: the binder emits IComparable but the generated
+      compareTo(Self) doesn't satisfy IComparable.CompareTo(object) (CS0535). Comparison isn't needed
+      through the managed adapter. Affects Blob, GeoPoint, Timestamp, etc.
+    -->
+    <remove-node path="//implements[@name='java.lang.Comparable']" />
+
+    <!-- Internal Tasks helper with a raw/generic Task mismatch (CS0308). Not public API. -->
+    <remove-node path="/api/package[@name='com.google.android.gms.tasks']/class[@name='NativeOnCompleteListener']" />
+
+    <!--
+      Basement is bound only for com.google.firebase.FirebaseException (base of FirebaseFirestoreException,
+      needed so EventListener.onEvent — hence real-time listeners — survives). Strip basement's noisy
+      Play-Services surface, which otherwise fails to bind (abstract callbacks, duplicate Status/Constants).
+    -->
+    <remove-node path="/api/package[@name='com.google.android.gms.common.api']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common.api.internal']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common.internal']" />
+    <!-- Keep com.google.android.gms.common.internal.safeparcel: FirebaseUser extends AbstractSafeParcelable. -->
+    <remove-node path="/api/package[@name='com.google.android.gms.common.util']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common.annotation']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common.data']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common.images']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common.stats']" />
+    <remove-node path="/api/package[@name='com.google.android.gms.common.wrappers']" />
+
+
+</metadata>

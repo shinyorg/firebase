@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>$(BaseTargetFramework);$(IosTargetFrameworks);$(AndroidTargetFrameworks)</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+        <Description>Native (on-device) Firebase Firestore provider for Shiny.DocumentDb — per-user auth, offline-first, real-time. iOS/Android only.</Description>
+        <PackageTags>firestore;firebase;mobile;maui;ios;android;offline;documentdb;json;nosql;shiny</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="Shiny.DocumentDb" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Shiny.DocumentDb.Firestore.Mobile.Tests" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <ProjectReference Include="..\Shiny.Firebase.Firestore.Android.Binding\Shiny.Firebase.Firestore.Android.Binding.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <ProjectReference Include="..\Shiny.Firebase.Firestore.iOS.Binding\Shiny.Firebase.Firestore.iOS.Binding.csproj" />
+    </ItemGroup>
+</Project>

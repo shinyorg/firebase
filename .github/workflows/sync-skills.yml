@@ -3,7 +3,7 @@ name: Sync Skills to Skills Repository
 on:
   push:
     branches:
-      - main
+      - 'v*'
     paths:
       - 'skills/**'
   workflow_dispatch:
@@ -32,27 +32,65 @@ jobs:
 
       - name: Sync skills directory
         run: |
-          if [ -d "source/skills/shiny-firebase" ]; then
-            rm -rf skills-repo/plugins/shiny-client/skills/shiny-firebase
-            mkdir -p skills-repo/plugins/shiny-client/skills
-            cp -r source/skills/shiny-firebase skills-repo/plugins/shiny-client/skills/
+          set -euo pipefail
+
+          # This repo owns skills in two different plugins of shinyorg/skills:
+          #   shiny-firebase        -> shiny-client (mobile client libraries)
+          #   shiny-firestore-mobile -> shiny-data  (alongside shiny-documentdb)
+          # Each entry is "<skill-name>:<target-plugin>". A skill dir is copied whole, so
+          # SKILL.md plus any reference/ content syncs together.
+          SKILL_MAP="shiny-firebase:shiny-client shiny-firestore-mobile:shiny-data"
+
+          synced=0
+          for entry in $SKILL_MAP; do
+            skill="${entry%%:*}"
+            plugin="${entry##*:}"
+            src="source/skills/$skill"
+            dest="skills-repo/plugins/$plugin/skills"
+
+            if [ ! -d "$src" ]; then
+              echo "::warning::Skill '$skill' not found at $src — skipping."
+              continue
+            fi
+            if [ ! -d "skills-repo/plugins/$plugin" ]; then
+              echo "::error::Target plugin '$plugin' does not exist in the skills repo."
+              exit 1
+            fi
+
+            echo "Syncing $skill -> plugins/$plugin/skills/$skill"
+            rm -rf "${dest:?}/$skill"
+            mkdir -p "$dest"
+            cp -r "$src" "$dest/"
+            synced=$((synced + 1))
+          done
+
+          if [ "$synced" -eq 0 ]; then
+            echo "::error::No skills were synced — check SKILL_MAP against source/skills/."
+            exit 1
           fi
+          echo "Synced $synced skill(s)."
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.SKILLS_REPO_TOKEN }}
           path: skills-repo
-          commit-message: "Update shiny-firebase skill from Firebase repository"
-          title: "Update shiny-firebase skill"
+          commit-message: "Update Firebase skills from Firebase repository"
+          title: "Update Firebase skills (shiny-firebase, shiny-firestore-mobile)"
           body: |
-            This PR updates the shiny-firebase skill from the [Firebase repository](https://github.com/shinyorg/firebase).
+            This PR updates the skills owned by the [Firebase repository](https://github.com/shinyorg/firebase).
+
+            | Skill | Plugin |
+            |---|---|
+            | `shiny-firebase` | `shiny-client` |
+            | `shiny-firestore-mobile` | `shiny-data` |
 
             **Source commit:** ${{ github.sha }}
             **Triggered by:** @${{ github.actor }}
+
             ---
             *This PR was automatically created by the [sync-skills workflow](https://github.com/shinyorg/firebase/actions/workflows/sync-skills.yml).*
-          branch: update-shiny-firebase-skill
+          branch: update-firebase-skills
           delete-branch: true
           labels: |
             automated

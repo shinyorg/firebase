@@ -10,6 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Shiny.Push" Version="5.0.0"/>
+        <PackageReference Include="Shiny.Push"/>
     </ItemGroup>
 </Project>

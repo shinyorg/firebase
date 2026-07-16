@@ -6,14 +6,13 @@
         <Nullable>enable</Nullable>
         <DisableExtraReferences>False</DisableExtraReferences>
         <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-        <Description>Shiny Push - Firebase Cloud Messaging</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://shinylib.net</PackageProjectUrl>
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
-        <PackageReleaseNotes>https://shinylib.net/release-notes/client/v50/</PackageReleaseNotes>
-        <PackageTags>firebase fcm push notifications ios android maui</PackageTags>
+        <PackageReleaseNotes>https://shinylib.net</PackageReleaseNotes>
+        <PackageTags>firebase shiny fcm firebase firestore ios android maui</PackageTags>
         <RepositoryUrl>https://github.com/shinyorg/firebase</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
 
@@ -22,8 +21,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <IosTargetFrameworks>net10.0-ios</IosTargetFrameworks>
-        <AndroidTargetFrameworks>net10.0-android</AndroidTargetFrameworks>
+        <BaseTargetFramework>net10.0</BaseTargetFramework>
+        <IosTargetFrameworks>$(BaseTargetFramework)-ios</IosTargetFrameworks>
+        <AndroidTargetFrameworks>$(BaseTargetFramework)-android</AndroidTargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">

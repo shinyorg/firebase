@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+      First-party .NET-for-iOS binding over the official Firebase Firestore SDK. NOT Plugin.Firebase.
+
+      Slim Binding — the same pattern as the sibling Analytics/Messaging iOS bindings: a small @objc Swift
+      wrapper under firebase_ios/native/firestore/ pulls Firebase via SPM, Firebase-ios.targets builds it into
+      one xcframework, and ApiDefinitions.cs binds that wrapper. There is no NativeLibs/ folder of raw Firebase
+      xcframeworks and no Objective Sharpie — SPM resolves the transitive native graph. See README.md.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>$(IosTargetFrameworks)</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>true</ImplicitUsings>
+        <IsBindingProject>true</IsBindingProject>
+        <NoBindingEmbedding>true</NoBindingEmbedding>
+        <Description>First-party .NET binding for the native Firebase Firestore (iOS) SDK — used by Shiny.DocumentDb.Firestore.Mobile.</Description>
+
+        <XcodeProject>$(MSBuildThisFileDirectory)../../firebase_ios/native/firestore/ShinyFirebaseFirestore.xcodeproj</XcodeProject>
+        <ObjSharpieBind>False</ObjSharpieBind>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ObjcBindingApiDefinition Include="ApiDefinitions.cs" />
+        <NativeReference Include="$(MSBuildThisFileDirectory)../../firebase_ios/native/firestore/.build/ShinyFirebaseFirestore.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>True</SmartLink>
+            <ForceLoad>True</ForceLoad>
+        </NativeReference>
+    </ItemGroup>
+
+
+    <Import Project="$(MSBuildThisFileDirectory)..\..\firebase_ios\Firebase-ios.targets" />
+</Project>

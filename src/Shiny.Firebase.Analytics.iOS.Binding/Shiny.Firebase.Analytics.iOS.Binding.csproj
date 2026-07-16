@@ -5,18 +5,18 @@
         <ImplicitUsings>true</ImplicitUsings>
         <IsBindingProject>true</IsBindingProject>
 
-        <XcodeProject>$(MSBuildThisFileDirectory)../firebase_ios/native/analytics/ShinyFirebaseAnalytics.xcodeproj</XcodeProject>
+        <XcodeProject>$(MSBuildThisFileDirectory)../../firebase_ios/native/analytics/ShinyFirebaseAnalytics.xcodeproj</XcodeProject>
         <XcodeBuildXCFramework>true</XcodeBuildXCFramework>
         <ObjSharpieBind>False</ObjSharpieBind>
     </PropertyGroup>
 
     <ItemGroup>
         <ObjcBindingApiDefinition Include="ApiDefinitions.cs" />
-        <NativeReference Include="$(MSBuildThisFileDirectory)../firebase_ios/native/analytics/.build/ShinyFirebaseAnalytics.xcframework">
+        <NativeReference Include="$(MSBuildThisFileDirectory)../../firebase_ios/native/analytics/.build/ShinyFirebaseAnalytics.xcframework">
             <Kind>Framework</Kind>
             <SmartLink>True</SmartLink>
         </NativeReference>
     </ItemGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)..\firebase_ios\Firebase-ios.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\firebase_ios\Firebase-ios.targets" />
 </Project>

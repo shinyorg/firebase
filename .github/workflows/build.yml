@@ -9,9 +9,6 @@ on:
         default: 'warning'
   push:
     branches:
-    - main
-    - dev
-    - preview
     - v*
 
 concurrency:
@@ -33,17 +30,16 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
           dotnet-version: '10.0.x'
+          workloads: maui-ios, maui-android
       
-    - name: Add .NET Workloads
-      run: dotnet workload install maui-ios maui-android
-
     - name: Resolve SPM Dependencies
       run: |
         xcodebuild -project firebase_ios/native/analytics/ShinyFirebaseAnalytics.xcodeproj -scheme ShinyFirebaseAnalytics -resolvePackageDependencies
         xcodebuild -project firebase_ios/native/messaging/ShinyFirebaseMessaging.xcodeproj -scheme ShinyFirebaseMessaging -resolvePackageDependencies
+        xcodebuild -project firebase_ios/native/firestore/ShinyFirebaseFirestore.xcodeproj -scheme ShinyFirebaseFirestore -resolvePackageDependencies
 
     - name: Build
       run: dotnet build Firebase.slnx /restore -m -property:Configuration=Release -property:PublicRelease=true
