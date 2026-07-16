@@ -1,7 +1,7 @@
 # Shiny.Firebase.Firestore.iOS.Binding
 
 First-party .NET-for-iOS binding over the **official** Firebase Firestore SDK.
-**Not** `Plugin.Firebase` or any third-party binding — see `plans/mobile-firestore-provider.md`.
+**Not** a third-party binding — see `plans/mobile-firestore-provider.md`.
 
 Status: **skeleton** — `.csproj` items are commented out until the Xcode wrapper project and
 `ApiDefinitions.cs` exist. Not yet referenced by `Shiny.DocumentDb.Firestore.Mobile`.

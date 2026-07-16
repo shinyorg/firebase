@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <!--
-      First-party .NET-for-iOS binding over the official Firebase Firestore SDK. NOT Plugin.Firebase.
+      First-party .NET-for-iOS binding over the official Firebase Firestore SDK. NOT a third-party binding.
 
       Slim Binding — the same pattern as the sibling Analytics/Messaging iOS bindings: a small @objc Swift
       wrapper under firebase_ios/native/firestore/ pulls Firebase via SPM, Firebase-ios.targets builds it into

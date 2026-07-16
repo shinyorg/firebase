@@ -1,7 +1,7 @@
 <Project>
     <!--
       First-party .NET-for-Android binding over the official Firebase Firestore + Auth AARs.
-      NOT Plugin.Firebase. See plans/mobile-firestore-provider.md and README.md in this folder.
+      NOT a third-party binding. See plans/mobile-firestore-provider.md and README.md in this folder.
 
       Builds a complete managed binding of the native Firebase Firestore + Auth SDKs: async CRUD
       (Get/Set/Update/Delete → Task), real-time (AddSnapshotListener), Query, snapshots, WriteBatch,

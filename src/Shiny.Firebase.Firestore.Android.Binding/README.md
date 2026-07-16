@@ -1,7 +1,7 @@
 # Shiny.Firebase.Firestore.Android.Binding
 
-First-party .NET-for-Android binding over the **official** Firebase Firestore + Auth AARs. **Not**
-`Plugin.Firebase` or any third-party binding — see `plans/mobile-firestore-provider.md` (binding policy).
+First-party .NET-for-Android binding over the **official** Firebase Firestore + Auth AARs. **Not** a
+third-party binding — see `plans/mobile-firestore-provider.md` (binding policy).
 
 Status: **DONE — builds green, verified end-to-end on the emulator.** A device test app drove
 Insert/Get/Upsert/Remove through this binding + the DocumentDb adapter against the Firestore emulator and

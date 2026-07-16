@@ -33,7 +33,7 @@ triggers:
 
 `Shiny.DocumentDb.Firestore.Mobile` is an **on-device** Firebase Firestore provider for
 [Shiny.DocumentDb](https://shinylib.net). It binds the **native** Firebase Firestore SDK (via a first-party
-Shiny binding — *not* `Plugin.Firebase`) and adapts it to the `IDocumentStore` contract.
+Shiny binding, *not* a third-party one) and adapts it to the `IDocumentStore` contract.
 
 The native SDK owns the hard parts — local cache, offline write queue, real-time listeners, backoff,
 conflict handling. This provider is a thin typed adapter over it.
