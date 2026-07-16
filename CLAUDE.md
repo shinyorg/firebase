@@ -34,10 +34,16 @@ projects around.
 `<PackageReference Include="X" />` with **no `Version`** — adding one back fails the build (NU1008). To change
 or add a package: add a `<PackageVersion Include="X" Version="…" />` centrally, then reference it bare.
 
-`Nerdbank.GitVersioning` is a **`GlobalPackageReference`** — it is injected into *every* project automatically
-with `PrivateAssets=All`. Do **not** add a `PackageReference` for it to a csproj or to
-`Directory.Build.targets`; that is what it looked like before CPM, and the per-project `Update` overrides had
-already drifted (most projects on 3.10.91, the Android binding and samples still on 3.9.50).
+`Nerdbank.GitVersioning` is applied to every project from `Directory.Build.targets`:
+
+```xml
+<PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="All"/>
+```
+
+with its version supplied centrally like everything else. **`PrivateAssets="All"` is load-bearing** — it stops
+Nerdbank flowing into each library's `.nuspec` as a dependency. Don't drop it, and don't add a per-project
+`PackageReference Update` to override the version; that is what this looked like before CPM, and the overrides
+had already drifted (most projects on 3.10.91, the Android binding and both samples silently on 3.9.50).
 
 If versioning ever looks wrong — e.g. a package suddenly reporting `1.0.0` — suspect that Nerdbank stopped
 being injected. `Shiny.Push.FirebaseMessaging` reading anything other than `5.0.1` is the giveaway, since
