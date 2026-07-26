@@ -81,9 +81,16 @@ public class ShinyFirestoreListener: NSObject {
 
 // MARK: - Query
 
+/// A builder over a Firestore `Query`.
+///
+/// Every builder returns a **new** wrapper rather than mutating and returning `self`. Firestore's own `Query`
+/// is immutable — `query.order(by:)` hands back a new one — and this type has to preserve that, because the
+/// managed side branches queries (`let b = a.where(…)` must not disturb `a`). Returning `self` also made
+/// read-only calls destructive: the managed `Any()` issues `limitTo(1)`, which permanently capped the query
+/// it was called on.
 @objc(ShinyFirestoreQuery)
 public class ShinyFirestoreQuery: NSObject {
-    private var query: Query
+    private let query: Query
 
     init(_ query: Query) {
         self.query = query
@@ -94,30 +101,29 @@ public class ShinyFirestoreQuery: NSObject {
     @objc(whereField:op:jsonValue:)
     public func whereField(_ field: String, op: String, jsonValue: String) -> ShinyFirestoreQuery {
         let value = ShinyFirestoreJson.toValue(jsonValue) as Any
+        let filtered: Query
         switch op {
-        case "==": self.query = self.query.whereField(field, isEqualTo: value)
-        case "!=": self.query = self.query.whereField(field, isNotEqualTo: value)
-        case "<": self.query = self.query.whereField(field, isLessThan: value)
-        case "<=": self.query = self.query.whereField(field, isLessThanOrEqualTo: value)
-        case ">": self.query = self.query.whereField(field, isGreaterThan: value)
-        case ">=": self.query = self.query.whereField(field, isGreaterThanOrEqualTo: value)
-        case "array-contains": self.query = self.query.whereField(field, arrayContains: value)
-        case "in": self.query = self.query.whereField(field, in: (value as? [Any]) ?? [])
-        default: break
+        case "==": filtered = self.query.whereField(field, isEqualTo: value)
+        case "!=": filtered = self.query.whereField(field, isNotEqualTo: value)
+        case "<": filtered = self.query.whereField(field, isLessThan: value)
+        case "<=": filtered = self.query.whereField(field, isLessThanOrEqualTo: value)
+        case ">": filtered = self.query.whereField(field, isGreaterThan: value)
+        case ">=": filtered = self.query.whereField(field, isGreaterThanOrEqualTo: value)
+        case "array-contains": filtered = self.query.whereField(field, arrayContains: value)
+        case "in": filtered = self.query.whereField(field, in: (value as? [Any]) ?? [])
+        default: filtered = self.query
         }
-        return self
+        return ShinyFirestoreQuery(filtered)
     }
 
     @objc(orderBy:descending:)
     public func orderBy(_ field: String, descending: Bool) -> ShinyFirestoreQuery {
-        self.query = self.query.order(by: field, descending: descending)
-        return self
+        ShinyFirestoreQuery(self.query.order(by: field, descending: descending))
     }
 
     @objc(limitTo:)
     public func limitTo(_ count: Int) -> ShinyFirestoreQuery {
-        self.query = self.query.limit(to: count)
-        return self
+        ShinyFirestoreQuery(self.query.limit(to: count))
     }
 
     /// Completion receives a JSON array of `{ "id": …, "data": { … } }`.

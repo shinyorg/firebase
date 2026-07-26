@@ -65,13 +65,7 @@ static class FirestoreQueryTranslator
     static Expression StripConvert(Expression e)
         => e is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } u ? u.Operand : e;
 
-    static object? Evaluate(Expression e)
-    {
-        if (e is ConstantExpression c)
-            return c.Value;
-        // Closures/captured locals/method calls: compile and invoke.
-        return Expression.Lambda(Expression.Convert(e, typeof(object))).Compile().DynamicInvoke();
-    }
+    static object? Evaluate(Expression e) => QueryValueEvaluator.Evaluate(e);
 
     internal static Object? ToJava(object? value) => value switch
     {

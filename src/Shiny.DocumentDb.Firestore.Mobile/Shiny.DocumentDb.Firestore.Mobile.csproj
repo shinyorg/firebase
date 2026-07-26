@@ -2,6 +2,9 @@
     <PropertyGroup>
         <TargetFrameworks>$(BaseTargetFramework);$(IosTargetFrameworks);$(AndroidTargetFrameworks)</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
+        <!-- iOS is a full-AOT target and the provider offers UseReflectionFallback=false for it, so the
+             trim/AOT analyzers need to be on for that promise to mean anything. -->
+        <IsAotCompatible>true</IsAotCompatible>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
         <Description>Native (on-device) Firebase Firestore provider for Shiny.DocumentDb — per-user auth, offline-first, real-time. iOS/Android only.</Description>
         <PackageTags>firestore;firebase;mobile;maui;ios;android;offline;documentdb;json;nosql;shiny</PackageTags>

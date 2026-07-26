@@ -86,13 +86,9 @@ static class FirestoreQueryTranslator
     static Expression Unwrap(Expression e)
         => e is UnaryExpression { NodeType: ExpressionType.Convert } u ? Unwrap(u.Operand) : e;
 
-    static object? Evaluate(Expression e)
-        => e is ConstantExpression c
-            ? c.Value
-            : Expression.Lambda(Expression.Convert(e, typeof(object))).Compile().DynamicInvoke();
+    static object? Evaluate(Expression e) => QueryValueEvaluator.Evaluate(e);
 
-    internal static string ToJson(object? value)
-        => JsonSerializer.Serialize(value);
+    internal static string ToJson(object? value) => FirestoreJson.SerializeQueryValue(value);
 
     static NotSupportedException Unsupported(string what)
         => new($"The mobile Firestore provider cannot translate '{what}' into a native Firestore query.");

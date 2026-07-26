@@ -50,13 +50,7 @@ public partial class MobileFirestoreDocumentStore
 
     // ── Serialization / id ──────────────────────────────────────────────
     JsonObject ToJson<T>(T document, JsonTypeInfo<T>? typeInfo) where T : class
-    {
-        var node = typeInfo != null
-            ? JsonSerializer.SerializeToNode(document, typeInfo)
-            : JsonSerializer.SerializeToNode(document, this.options.JsonSerializerOptions);
-        return node as JsonObject
-            ?? throw new InvalidOperationException($"Document of type {typeof(T).Name} did not serialize to a JSON object.");
-    }
+        => FirestoreJson.Serialize(document, typeInfo, this.options.JsonSerializerOptions);
 
     string IdPropertyName<T>() => this.options.ResolveIdPropertyName(typeof(T)) ?? "Id";
 
@@ -130,9 +124,7 @@ public partial class MobileFirestoreDocumentStore
             return null;
 
         var json = FirestoreValueConverter.ToJsonObject(data);
-        return jsonTypeInfo != null
-            ? json.Deserialize(jsonTypeInfo)
-            : json.Deserialize<T>(this.options.JsonSerializerOptions);
+        return FirestoreJson.Deserialize(json, jsonTypeInfo, this.options.JsonSerializerOptions);
     }
 
     // ── Query ───────────────────────────────────────────────────────────

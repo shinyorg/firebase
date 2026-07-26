@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFrameworks>$(IosTargetFrameworks);$(AndroidTargetFrameworks)</TargetFrameworks>
         <Description>Shiny Push Integration - Google Firebase Cloud Messaging</Description>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">

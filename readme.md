@@ -128,6 +128,9 @@ service account. This one runs **on the device**, under the end user's Firebase 
 - LINQ queries pushed down to the native Firestore query (filter, order, limit)
 - Managed Firebase Auth identity (anonymous + email/password, token refresh)
 - Firestore emulator support
+- Trim/AOT clean — pass a `JsonTypeInfo<T>` (and set `UseReflectionFallback = false`) for full-AOT builds
+
+Requires `Shiny.DocumentDb` 12.0.0 or later.
 
 ## Platform support
 

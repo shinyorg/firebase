@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using Shiny.DocumentDb.Internal;
 
 namespace Shiny.DocumentDb.Firestore.Mobile;
@@ -17,19 +18,51 @@ public partial class MobileFirestoreDocumentStore : DocumentProviderBase, IDocum
 {
     readonly MobileFirestoreOptions options;
     readonly IServiceProvider services;
+    readonly IdAccessorCache idCache;
 
     public MobileFirestoreDocumentStore(MobileFirestoreOptions options, IServiceProvider services)
     {
         this.options = options ?? throw new ArgumentNullException(nameof(options));
         this.services = services;
+        this.idCache = new IdAccessorCache(options.ResolveIdPropertyName, options.IdConverters);
         this.InitializePlatform();
     }
 
     protected override InterceptorPipeline Interceptors => this.options.Interceptors;
+    protected override DocumentMappingRegistry Mappings => this.options.Mappings;
+    protected override IdAccessorCache IdCache => this.idCache;
+    protected override JsonTypeInfo<T>? ResolveTypeInfo<T>(JsonTypeInfo<T>? provided) where T : class => this.FindTypeInfo(provided);
+    protected override string ResolveDocumentTypeName<T>() where T : class => ResolveTypeName<T>(this.options.TypeNameResolution);
 
     // Implemented per-platform: Android configures the native FirebaseFirestore instance; the stub no-ops.
     partial void InitializePlatform();
 
     // Resolve the Firestore collection name for a document type (respects MapTypeToCollection).
     string ResolveCollection<T>() => this.options.ResolveCollectionName(typeof(T), typeof(T).Name);
+
+    // TypeNameResolver is internal to Shiny.DocumentDb, so mirror it here.
+    static string ResolveTypeName<T>(TypeNameResolution resolution) => resolution switch
+    {
+        TypeNameResolution.ShortName => typeof(T).Name,
+        TypeNameResolution.FullName => typeof(T).FullName ?? typeof(T).Name,
+        _ => throw new ArgumentOutOfRangeException(nameof(resolution))
+    };
+
+    // The effective JsonTypeInfo<T>: the caller's, the store's resolver, or null for the reflection path.
+    internal JsonTypeInfo<T>? FindTypeInfo<T>(JsonTypeInfo<T>? provided)
+    {
+        if (provided != null)
+            return provided;
+
+        var json = this.options.JsonSerializerOptions;
+        if (json != null && json.TryGetTypeInfo(typeof(T), out var info) && info is JsonTypeInfo<T> typed)
+            return typed;
+
+        if (!this.options.UseReflectionFallback)
+            throw new InvalidOperationException(
+                $"No JsonTypeInfo registered for type '{typeof(T).FullName}'. " +
+                $"Register it in your JsonSerializerContext or pass a JsonTypeInfo<{typeof(T).Name}> explicitly.");
+
+        return null;
+    }
 }

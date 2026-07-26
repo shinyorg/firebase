@@ -68,7 +68,7 @@ sealed class FirestoreChangeListener<T> : Java.Lang.Object, IEventListener where
         if (data != null)
         {
             var json = FirestoreValueConverter.ToJsonObject(data);
-            document = this.typeInfo != null ? json.Deserialize(this.typeInfo) : json.Deserialize<T>(this.jsonOptions);
+            document = FirestoreJson.Deserialize(json, this.typeInfo, this.jsonOptions);
         }
         return new DocumentChange<T> { ChangeType = changeType, Id = id, Document = document };
     }

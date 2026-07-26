@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using Shiny.Push;
 
 namespace Shiny;
@@ -35,7 +36,9 @@ public static class FirebaseServiceCollectionExtensions
     }
 
 
-    public static IServiceCollection AddPushFirebaseMessaging<TPushDelegate>(this IServiceCollection services, FirebaseConfiguration? config = null)
+    public static IServiceCollection AddPushFirebaseMessaging<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] TPushDelegate
+    >(this IServiceCollection services, FirebaseConfiguration? config = null)
          where TPushDelegate : class, IPushDelegate
     {
         services.AddSingletonAsImplementedInterfaces<TPushDelegate>();

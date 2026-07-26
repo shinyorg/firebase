@@ -59,13 +59,7 @@ public partial class MobileFirestoreDocumentStore
 
     // ── Serialization / id ──────────────────────────────────────────────
     JsonObject ToJson<T>(T document, JsonTypeInfo<T>? typeInfo) where T : class
-    {
-        var node = typeInfo != null
-            ? JsonSerializer.SerializeToNode(document, typeInfo)
-            : JsonSerializer.SerializeToNode(document, this.options.JsonSerializerOptions);
-        return node as JsonObject
-            ?? throw new InvalidOperationException($"Document of type {typeof(T).Name} did not serialize to a JSON object.");
-    }
+        => FirestoreJson.Serialize(document, typeInfo, this.options.JsonSerializerOptions);
 
     string IdPropertyName<T>() => this.options.ResolveIdPropertyName(typeof(T)) ?? "Id";
 
@@ -86,9 +80,7 @@ public partial class MobileFirestoreDocumentStore
     }
 
     internal T? Deserialize<T>(string json, JsonTypeInfo<T>? typeInfo) where T : class
-        => typeInfo != null
-            ? JsonSerializer.Deserialize(json, typeInfo)
-            : JsonSerializer.Deserialize<T>(json, this.options.JsonSerializerOptions);
+        => FirestoreJson.Deserialize(json, typeInfo, this.options.JsonSerializerOptions);
 
     // ── Writes ──────────────────────────────────────────────────────────
     public async Task Insert<T>(T document, JsonTypeInfo<T>? jsonTypeInfo = null, CancellationToken cancellationToken = default) where T : class

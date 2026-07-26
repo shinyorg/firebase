@@ -6,7 +6,7 @@
     <ItemGroup>
         <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.91"/>
         <PackageVersion Include="Shiny.Push" Version="5.2.3"/>
-        <PackageVersion Include="Shiny.DocumentDb" Version="11.1.1"/>
+        <PackageVersion Include="Shiny.DocumentDb" Version="12.0.0"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7"/>
     </ItemGroup>

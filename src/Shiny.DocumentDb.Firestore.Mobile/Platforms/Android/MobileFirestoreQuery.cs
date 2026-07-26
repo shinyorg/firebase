@@ -19,8 +19,8 @@ sealed class MobileFirestoreQuery<T> : IDocumentQuery<T> where T : class
     readonly MobileFirestoreDocumentStore store;
     readonly CollectionReference collection;
     readonly JsonTypeInfo<T>? typeInfo;
-    Query query;
-    int skip;
+    readonly Query query;
+    readonly int skip;
 
     public MobileFirestoreQuery(
         MobileFirestoreDocumentStore store,
@@ -31,22 +31,34 @@ sealed class MobileFirestoreQuery<T> : IDocumentQuery<T> where T : class
         this.store = store;
         this.collection = collection;
         this.typeInfo = typeInfo;
-        this.query = collection;
 
+        Query q = collection;
         if (!ignoreGlobalFilters)
             foreach (var f in store.GlobalFilters(typeof(T)))
-                this.query = FirestoreQueryTranslator.Apply(this.query, f.Predicate.Body, this.Field);
+                q = FirestoreQueryTranslator.Apply(q, f.Predicate.Body, this.Field);
+        this.query = q;
     }
+
+    // Clone. Every builder returns one of these rather than mutating, which is the IDocumentQuery<T> contract
+    // as of DocumentDb 12 — `var b = a.Where(…)` must branch, not alias. The state above is readonly so the
+    // compiler keeps it that way; the native Query is itself immutable, so a clone is just a new wrapper.
+    MobileFirestoreQuery(MobileFirestoreQuery<T> source, Query query, int skip)
+    {
+        this.store = source.store;
+        this.collection = source.collection;
+        this.typeInfo = source.typeInfo;
+        this.query = query;
+        this.skip = skip;
+    }
+
+    MobileFirestoreQuery<T> With(Query query, int? skip = null) => new(this, query, skip ?? this.skip);
 
     public JsonTypeInfo<T>? QueryTypeInfo => this.typeInfo;
 
     string Field(string member) => this.store.FieldName<T>(member);
 
     public IDocumentQuery<T> Where(Expression<Func<T, bool>> predicate)
-    {
-        this.query = FirestoreQueryTranslator.Apply(this.query, predicate.Body, this.Field);
-        return this;
-    }
+        => this.With(FirestoreQueryTranslator.Apply(this.query, predicate.Body, this.Field));
 
     public IDocumentQuery<T> IgnoreQueryFilters()
         => new MobileFirestoreQuery<T>(this.store, this.collection, this.typeInfo, ignoreGlobalFilters: true);
@@ -55,23 +67,14 @@ sealed class MobileFirestoreQuery<T> : IDocumentQuery<T> where T : class
         => this.IgnoreQueryFilters(); // v1: all-or-nothing (named removal not tracked)
 
     public IDocumentQuery<T> OrderBy(Expression<Func<T, object>> selector)
-    {
-        this.query = this.query.OrderBy(this.Field(MemberName(selector)));
-        return this;
-    }
+        => this.With(this.query.OrderBy(this.Field(MemberName(selector))));
 
     public IDocumentQuery<T> OrderByDescending(Expression<Func<T, object>> selector)
-    {
-        this.query = this.query.OrderBy(this.Field(MemberName(selector)), Query.Direction.Descending!);
-        return this;
-    }
+        => this.With(this.query.OrderBy(this.Field(MemberName(selector)), Query.Direction.Descending!));
 
+    // Firestore has no offset, so take the whole prefix natively and drop `offset` client-side in ToList.
     public IDocumentQuery<T> Paginate(int offset, int take)
-    {
-        this.skip = offset;
-        this.query = this.query.Limit(offset + take); // Firestore has no offset; skip client-side in ToList
-        return this;
-    }
+        => this.With(this.query.Limit(offset + take), offset);
 
     public async Task<IReadOnlyList<T>> ToList(CancellationToken ct = default)
     {
@@ -86,7 +89,7 @@ sealed class MobileFirestoreQuery<T> : IDocumentQuery<T> where T : class
             if (data == null)
                 continue;
             var json = FirestoreValueConverter.ToJsonObject(data);
-            var item = this.typeInfo != null ? json.Deserialize(this.typeInfo) : json.Deserialize<T>(this.store.JsonOpts);
+            var item = FirestoreJson.Deserialize(json, this.typeInfo, this.store.JsonOpts);
             if (item != null)
                 list.Add(item);
         }

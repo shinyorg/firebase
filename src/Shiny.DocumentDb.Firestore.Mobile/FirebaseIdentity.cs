@@ -79,20 +79,24 @@ public sealed class FirebaseRestIdentity : IFirebaseIdentity
     public event EventHandler<FirebaseUser?>? AuthStateChanged;
 
     public Task<FirebaseUser> SignInAnonymouslyAsync(CancellationToken cancellationToken = default)
-        => this.PostSignIn("accounts:signUp", new { returnSecureToken = true }, isAnonymous: true, null, cancellationToken);
+        => this.PostSignIn("accounts:signUp", new SignInRequest(), isAnonymous: true, null, cancellationToken);
 
     public Task<FirebaseUser> SignInWithEmailPasswordAsync(string email, string password, CancellationToken cancellationToken = default)
-        => this.PostSignIn("accounts:signInWithPassword", new { email, password, returnSecureToken = true }, isAnonymous: false, email, cancellationToken);
+        => this.PostSignIn("accounts:signInWithPassword", new SignInRequest { Email = email, Password = password }, isAnonymous: false, email, cancellationToken);
 
     public Task<FirebaseUser> SignUpWithEmailPasswordAsync(string email, string password, CancellationToken cancellationToken = default)
-        => this.PostSignIn("accounts:signUp", new { email, password, returnSecureToken = true }, isAnonymous: false, email, cancellationToken);
+        => this.PostSignIn("accounts:signUp", new SignInRequest { Email = email, Password = password }, isAnonymous: false, email, cancellationToken);
 
-    async Task<FirebaseUser> PostSignIn(string method, object body, bool isAnonymous, string? email, CancellationToken ct)
+    async Task<FirebaseUser> PostSignIn(string method, SignInRequest body, bool isAnonymous, string? email, CancellationToken ct)
     {
         var url = $"{this.identityBase}/{method}?key={this.options.ApiKey}";
-        var resp = await this.http.PostAsJsonAsync(url, body, ct).ConfigureAwait(false);
+        var resp = await this.http
+            .PostAsJsonAsync(url, body, FirebaseAuthJsonContext.Default.SignInRequest, ct)
+            .ConfigureAwait(false);
         await EnsureOk(resp, ct).ConfigureAwait(false);
-        var r = (await resp.Content.ReadFromJsonAsync<SignInResponse>(ct).ConfigureAwait(false))!;
+        var r = (await resp.Content
+            .ReadFromJsonAsync(FirebaseAuthJsonContext.Default.SignInResponse, ct)
+            .ConfigureAwait(false))!;
 
         var user = new FirebaseUser(
             r.LocalId!, r.IdToken!, r.RefreshToken!,
@@ -117,7 +121,9 @@ public sealed class FirebaseRestIdentity : IFirebaseIdentity
         });
         var resp = await this.http.PostAsync(url, form, cancellationToken).ConfigureAwait(false);
         await EnsureOk(resp, cancellationToken).ConfigureAwait(false);
-        var r = (await resp.Content.ReadFromJsonAsync<RefreshResponse>(cancellationToken).ConfigureAwait(false))!;
+        var r = (await resp.Content
+            .ReadFromJsonAsync(FirebaseAuthJsonContext.Default.RefreshResponse, cancellationToken)
+            .ConfigureAwait(false))!;
 
         var refreshed = user with
         {
@@ -146,19 +152,41 @@ public sealed class FirebaseRestIdentity : IFirebaseIdentity
     }
 
     static int ParseInt(string? s, int fallback) => int.TryParse(s, out var v) ? v : fallback;
-
-    sealed class SignInResponse
-    {
-        [JsonPropertyName("localId")] public string? LocalId { get; set; }
-        [JsonPropertyName("idToken")] public string? IdToken { get; set; }
-        [JsonPropertyName("refreshToken")] public string? RefreshToken { get; set; }
-        [JsonPropertyName("expiresIn")] public string? ExpiresIn { get; set; }
-    }
-
-    sealed class RefreshResponse
-    {
-        [JsonPropertyName("id_token")] public string? IdToken { get; set; }
-        [JsonPropertyName("refresh_token")] public string? RefreshToken { get; set; }
-        [JsonPropertyName("expires_in")] public string? ExpiresIn { get; set; }
-    }
 }
+
+// The Auth REST payloads. Top-level (not nested) and paired with the source-generated context below so the
+// identity client carries no reflection-based serialization — it is the one part of this provider that
+// UseReflectionFallback cannot switch off, since it has no JsonTypeInfo<T> parameter to thread through.
+sealed class SignInRequest
+{
+    /// <summary>Omitted for anonymous sign-in, which posts only <c>returnSecureToken</c>.</summary>
+    [JsonPropertyName("email")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Email { get; set; }
+
+    [JsonPropertyName("password")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Password { get; set; }
+
+    [JsonPropertyName("returnSecureToken")] public bool ReturnSecureToken { get; set; } = true;
+}
+
+sealed class SignInResponse
+{
+    [JsonPropertyName("localId")] public string? LocalId { get; set; }
+    [JsonPropertyName("idToken")] public string? IdToken { get; set; }
+    [JsonPropertyName("refreshToken")] public string? RefreshToken { get; set; }
+    [JsonPropertyName("expiresIn")] public string? ExpiresIn { get; set; }
+}
+
+sealed class RefreshResponse
+{
+    [JsonPropertyName("id_token")] public string? IdToken { get; set; }
+    [JsonPropertyName("refresh_token")] public string? RefreshToken { get; set; }
+    [JsonPropertyName("expires_in")] public string? ExpiresIn { get; set; }
+}
+
+[JsonSerializable(typeof(SignInRequest))]
+[JsonSerializable(typeof(SignInResponse))]
+[JsonSerializable(typeof(RefreshResponse))]
+sealed partial class FirebaseAuthJsonContext : JsonSerializerContext;

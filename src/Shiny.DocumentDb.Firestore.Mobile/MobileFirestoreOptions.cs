@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.Json;
 using Shiny.DocumentDb.Internal;
@@ -18,11 +17,14 @@ namespace Shiny.DocumentDb.Firestore.Mobile;
 /// </remarks>
 public class MobileFirestoreOptions
 {
+    /// <summary>
+    /// The shared per-type mapping state — id overrides and converters, query filters, and version mappings.
+    /// Held (not inherited) so the fluent methods below keep returning <see cref="MobileFirestoreOptions"/>;
+    /// <see cref="MobileFirestoreDocumentStore"/> hands it to <c>DocumentProviderBase</c>.
+    /// </summary>
+    internal DocumentMappingRegistry Mappings { get; } = new();
+
     readonly Dictionary<Type, string> collectionOverrides = new();
-    readonly Dictionary<Type, string> idPropertyOverrides = new();
-    readonly IdConverterRegistry idConverters = new();
-    readonly Dictionary<Type, List<QueryFilter>> queryFilters = new();
-    internal readonly Dictionary<Type, VersionMapping> versionMappings = new();
 
     /// <summary>
     /// The Firebase project id. Optional when a platform config file (<c>google-services.json</c> on Android,
@@ -75,18 +77,17 @@ public class MobileFirestoreOptions
     /// <summary>Maps a document type to a custom Id property.</summary>
     public MobileFirestoreOptions MapIdProperty<T>(Expression<Func<T, object>> idProperty) where T : class
     {
-        this.idPropertyOverrides[typeof(T)] = ExtractPropertyName(idProperty);
+        this.Mappings.MapIdProperty(idProperty);
         return this;
     }
 
-    internal string? ResolveIdPropertyName(Type type)
-        => this.idPropertyOverrides.TryGetValue(type, out var name) ? name : null;
+    internal string? ResolveIdPropertyName(Type type) => this.Mappings.ResolveIdPropertyName(type);
 
     /// <summary>Registers a converter so a document Id can be a CLR type beyond Guid/int/long/string.</summary>
     public MobileFirestoreOptions MapIdType<TId>(DocumentIdConverter<TId> converter)
     {
         ArgumentNullException.ThrowIfNull(converter);
-        this.idConverters.Register(converter);
+        this.Mappings.IdConverters.Register(converter);
         return this;
     }
 
@@ -99,11 +100,11 @@ public class MobileFirestoreOptions
     {
         ArgumentNullException.ThrowIfNull(toString);
         ArgumentNullException.ThrowIfNull(parse);
-        this.idConverters.Register(new DelegateIdConverter<TId>(toString, parse, isDefault, generate));
+        this.Mappings.IdConverters.Register(new DelegateIdConverter<TId>(toString, parse, isDefault, generate));
         return this;
     }
 
-    internal IdConverterRegistry IdConverters => this.idConverters;
+    internal IdConverterRegistry IdConverters => this.Mappings.IdConverters;
 
     /// <summary>Registers an unnamed global query filter for <typeparamref name="T"/>.</summary>
     public MobileFirestoreOptions AddQueryFilter<T>(Expression<Func<T, bool>> predicate) where T : class
@@ -122,14 +123,11 @@ public class MobileFirestoreOptions
 
     MobileFirestoreOptions AddQueryFilterInternal<T>(string? name, Expression<Func<T, bool>> predicate) where T : class
     {
-        if (!this.queryFilters.TryGetValue(typeof(T), out var list))
-            this.queryFilters[typeof(T)] = list = new List<QueryFilter>();
-        list.Add(new QueryFilter(name, predicate));
+        this.Mappings.AddQueryFilter(name, predicate);
         return this;
     }
 
-    internal IReadOnlyList<QueryFilter> ResolveQueryFilters(Type type)
-        => this.queryFilters.TryGetValue(type, out var list) ? list : Array.Empty<QueryFilter>();
+    internal IReadOnlyList<QueryFilter> ResolveQueryFilters(Type type) => this.Mappings.ResolveQueryFilters(type);
 
     // ── Write interceptors ──────────────────────────────────────────────
     internal InterceptorPipeline Interceptors { get; } = new();
@@ -151,53 +149,18 @@ public class MobileFirestoreOptions
     /// document inside a native Firestore transaction, compares the mapped version, increments, and writes — a
     /// stale version throws <see cref="ConcurrencyException"/>.
     /// </summary>
-    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Property is resolved by name from a user-provided expression.")]
     public MobileFirestoreOptions MapVersionProperty<T>(Expression<Func<T, int>> property) where T : class
     {
-        if (property.Body is not MemberExpression member)
-            throw new ArgumentException("Expression must be a simple property access.", nameof(property));
-
-        var propertyName = member.Member.Name;
-        var propInfo = typeof(T).GetProperty(propertyName)
-            ?? throw new ArgumentException($"Property '{propertyName}' not found on type '{typeof(T).Name}'.");
-
-        this.versionMappings[typeof(T)] = new VersionMapping
-        {
-            DocumentType = typeof(T),
-            PropertyName = propertyName,
-            GetVersion = obj => (int)propInfo.GetValue(obj)!,
-            SetVersion = (obj, v) => propInfo.SetValue(obj, v)
-        };
+        this.Mappings.MapVersionProperty(property);
         return this;
     }
 
     /// <summary>AOT-safe version-property overload.</summary>
     public MobileFirestoreOptions MapVersionProperty<T>(string propertyName, Func<T, int> getter, Action<T, int> setter) where T : class
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
-        this.versionMappings[typeof(T)] = new VersionMapping
-        {
-            DocumentType = typeof(T),
-            PropertyName = propertyName,
-            GetVersion = obj => getter((T)obj),
-            SetVersion = (obj, v) => setter((T)obj, v)
-        };
+        this.Mappings.MapVersionProperty(propertyName, getter, setter);
         return this;
     }
 
-    internal VersionMapping? ResolveVersionMapping(Type type)
-        => this.versionMappings.TryGetValue(type, out var mapping) ? mapping : null;
-
-    static string ExtractPropertyName<T>(Expression<Func<T, object>> expression)
-    {
-        var body = expression.Body;
-        if (body is UnaryExpression { NodeType: ExpressionType.Convert } unary)
-            body = unary.Operand;
-
-        if (body is MemberExpression member)
-            return member.Member.Name;
-
-        throw new ArgumentException(
-            "Expression must be a simple property access (e.g., x => x.MyId).", nameof(expression));
-    }
+    internal VersionMapping? ResolveVersionMapping(Type type) => this.Mappings.ResolveVersionMapping(type);
 }
