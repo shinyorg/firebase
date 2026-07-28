@@ -15,8 +15,7 @@
         <File Path="version.json" />
         <File Path="readme.md" />
     </Folder>
-    <Project Path="src\Shiny.Firebase.Analytics.iOS.Binding\Shiny.Firebase.Analytics.iOS.Binding.csproj" />
-    <Project Path="src\Shiny.Firebase.Messaging.iOS.Binding\Shiny.Firebase.Messaging.iOS.Binding.csproj" />
+    <Project Path="src\Shiny.Firebase.iOS.Binding\Shiny.Firebase.iOS.Binding.csproj" />
     <Project Path="src\Shiny.Push.FirebaseMessaging\Shiny.Push.FirebaseMessaging.csproj" />
     <Project Path="src\Shiny.Firebase.Firestore.Android.Binding\Shiny.Firebase.Firestore.Android.Binding.csproj" />
     <Project Path="src\Shiny.Firebase.Firestore.iOS.Binding\Shiny.Firebase.Firestore.iOS.Binding.csproj" />

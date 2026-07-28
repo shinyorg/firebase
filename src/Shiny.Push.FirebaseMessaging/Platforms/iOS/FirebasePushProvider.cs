@@ -4,8 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Shiny.Extensions.Stores;
-using Shiny.Firebase.Analytics.iOS.Binding;
-using Shiny.Firebase.Messaging.iOS.Binding;
+using Shiny.Firebase.iOS.Binding;
 using Foundation;
 
 namespace Shiny.Push;

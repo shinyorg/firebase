@@ -24,7 +24,8 @@ Firebase SDKs
 - Manual configuration support
 - Topic subscription support (iOS)
 - Custom push delegate for handling notification events
-- Native iOS Firebase SDK 12.x via Slim Bindings
+- Native iOS Firebase SDK 12.x via a single Slim Binding framework — one embedded copy of FirebaseCore, so
+  there is no duplicate-`FIRApp` collision between the Core, Messaging and Analytics shims
 
 ## Installation
 

@@ -9,7 +9,7 @@ Status: **skeleton** — `.csproj` items are commented out until the Xcode wrapp
 ## Approach: Slim Binding (not a direct SDK bind)
 
 This repo does **not** bind the Firebase Objective-C SDK surface directly. Every Firebase iOS binding here
-(`Shiny.Firebase.Analytics.iOS.Binding`, `Shiny.Firebase.Messaging.iOS.Binding`) follows the same **Slim
+(`Shiny.Firebase.iOS.Binding` — Core + Messaging + Analytics in one framework) follows the same **Slim
 Binding** pattern, and Firestore must too:
 
 1. A small **Swift wrapper** in an Xcode *framework* project under `firebase_ios/native/<name>/`, exposing an
@@ -19,6 +19,12 @@ Binding** pattern, and Firestore must too:
 3. `firebase_ios/Firebase-ios.targets` runs `xcodebuild archive` for iOS + iOS Simulator + Mac Catalyst and
    combines the results into a single `.xcframework` under `<project>/.build/`.
 4. `ApiDefinitions.cs` binds **that slim wrapper** — tens of lines, not thousands. `ObjSharpieBind=False`.
+
+> **One framework per FirebaseApp.** The Firebase SPM products are static, so each shim framework bakes in its
+> own full copy of FirebaseCore. Any wrapper that calls `FirebaseApp.configure()` and any wrapper that consumes
+> that configuration **must live in the same Xcode target** — otherwise the consumer talks to a second,
+> unconfigured `FIRApp` and its completion blocks never fire (shinyorg/shiny#1638). Firestore gets away with a
+> separate framework only because it configures and consumes within `Firestore.swift`.
 
 > **Why this matters.** An earlier draft of this file prescribed the opposite: download ~13 raw Firebase
 > `.xcframework`s into `NativeLibs/`, run **Objective Sharpie** against the umbrella headers, and hand-clean a
@@ -51,17 +57,17 @@ src/Shiny.Firebase.Firestore.iOS.Binding/
   Shiny.Firebase.Firestore.iOS.Binding.csproj   # reaches firebase_ios via ../../ — it lives under src/
 ```
 
-Crib `firebase_ios/native/messaging/` — it is the reference implementation of every piece above.
+Crib `firebase_ios/native/shinyfirebase/` — it is the reference implementation of every piece above.
 
 ## Steps to build
 
-1. Create the Xcode framework project + Swift wrapper (mirror `native/messaging/`). Add the SPM package
+1. Create the Xcode framework project + Swift wrapper (mirror `native/shinyfirebase/`). Add the SPM package
    reference to `firebase-ios-sdk` and the `FirebaseFirestore` product dependency.
 2. Author the `@objc` wrapper surface the adapter needs — mirror what the Android binding gives
    `Platforms/Android/`: configure/emulator/persistence settings, document get/set/delete, collection reads,
    query (where/order/limit) + execute, snapshot listeners + registration removal.
 3. Author `ApiDefinitions.cs` against that surface.
-4. Point the `.csproj` at the Xcode project and import `Firebase-ios.targets` (copy the Messaging csproj):
+4. Point the `.csproj` at the Xcode project and import `Firebase-ios.targets` (copy `Shiny.Firebase.iOS.Binding.csproj`):
    `<XcodeProject>`, `<ObjSharpieBind>False`, one `<NativeReference>` to the built `.xcframework`,
    `NoBindingEmbedding=true`.
 5. `dotnet build -f net10.0-ios` and iterate.

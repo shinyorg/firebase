@@ -6,8 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
-        <ProjectReference Include="..\Shiny.Firebase.Analytics.iOS.Binding\Shiny.Firebase.Analytics.iOS.Binding.csproj"/>
-        <ProjectReference Include="..\Shiny.Firebase.Messaging.iOS.Binding\Shiny.Firebase.Messaging.iOS.Binding.csproj"/>
+        <ProjectReference Include="..\Shiny.Firebase.iOS.Binding\Shiny.Firebase.iOS.Binding.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -7,36 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		64EDE08D2B9618AE00661736 /* ShinyFirebaseAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 64EDE08C2B9618AE00661736 /* ShinyFirebaseAnalytics.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64EDE08D2B9618AE00661736 /* ShinyFirebase.h in Headers */ = {isa = PBXBuildFile; fileRef = 64EDE08C2B9618AE00661736 /* ShinyFirebase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		64EDE09F2B96221400661736 /* FirebaseAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64EDE09E2B96221400661736 /* FirebaseAnalytics.swift */; };
 		E5C8F6152B9F58EA00722F1E /* FirebaseApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C8F6142B9F58EA00722F1E /* FirebaseApplication.swift */; };
+		E5C8F6312B9F58EA00722F1E /* FirebaseMessaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C8F6302B9F58EA00722F1E /* FirebaseMessaging.swift */; };
 		E5C8F6222B9F59F300722F1E /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E5C8F6212B9F59F300722F1E /* FirebaseAnalytics */; };
 		E5C8F6242B9F59F300722F1E /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = E5C8F6232B9F59F300722F1E /* FirebaseInstallations */; };
+		E5C8F6262B9F59F300722F1E /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E5C8F6252B9F59F300722F1E /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		64B992EC2B97997E00BAFB55 /* GoogleAppMeasurementIdentitySupport.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleAppMeasurementIdentitySupport.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/GoogleAppMeasurementIdentitySupport.xcframework; sourceTree = "<group>"; };
-		64B992ED2B97997E00BAFB55 /* GoogleAppMeasurement.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleAppMeasurement.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/GoogleAppMeasurement.xcframework; sourceTree = "<group>"; };
-		64B992EE2B97997E00BAFB55 /* FirebaseAnalytics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseAnalytics.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseAnalytics.xcframework; sourceTree = "<group>"; };
-		64B992EF2B97997E00BAFB55 /* FBLPromises.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FBLPromises.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/FBLPromises.xcframework; sourceTree = "<group>"; };
-		64B992F02B97997E00BAFB55 /* FirebaseInstallations.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseInstallations.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseInstallations.xcframework; sourceTree = "<group>"; };
-		64B992F12B97997E00BAFB55 /* FirebaseCoreInternal.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseCoreInternal.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseCoreInternal.xcframework; sourceTree = "<group>"; };
-		64B992F22B97997E00BAFB55 /* GoogleUtilities.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleUtilities.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework; sourceTree = "<group>"; };
-		64B992F32B97997E00BAFB55 /* nanopb.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = nanopb.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/nanopb.xcframework; sourceTree = "<group>"; };
-		64B992F42B97997E00BAFB55 /* FirebaseCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseCore.xcframework; path = .build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseCore.xcframework; sourceTree = "<group>"; };
-		64B9930F2B979ED500BAFB55 /* FirebaseInstallations.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseInstallations.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseInstallations.xcframework; sourceTree = "<group>"; };
-		64B993102B979ED500BAFB55 /* GoogleUtilities.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleUtilities.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework; sourceTree = "<group>"; };
-		64B993112B979ED500BAFB55 /* GoogleAppMeasurementIdentitySupport.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleAppMeasurementIdentitySupport.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/GoogleAppMeasurementIdentitySupport.xcframework; sourceTree = "<group>"; };
-		64B993122B979ED500BAFB55 /* FirebaseAnalytics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseAnalytics.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseAnalytics.xcframework; sourceTree = "<group>"; };
-		64B993132B979ED500BAFB55 /* FirebaseCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseCore.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseCore.xcframework; sourceTree = "<group>"; };
-		64B993142B979ED500BAFB55 /* FBLPromises.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FBLPromises.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/FBLPromises.xcframework; sourceTree = "<group>"; };
-		64B993152B979ED500BAFB55 /* FirebaseCoreInternal.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseCoreInternal.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/FirebaseCoreInternal.xcframework; sourceTree = "<group>"; };
-		64B993162B979ED500BAFB55 /* GoogleAppMeasurement.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleAppMeasurement.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/GoogleAppMeasurement.xcframework; sourceTree = "<group>"; };
-		64B993172B979ED500BAFB55 /* nanopb.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = nanopb.xcframework; path = ../../../build/FirebaseSdk/Firebase/FirebaseAnalytics/nanopb.xcframework; sourceTree = "<group>"; };
-		64EDE0892B9618AE00661736 /* ShinyFirebaseAnalytics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ShinyFirebaseAnalytics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		64EDE08C2B9618AE00661736 /* ShinyFirebaseAnalytics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShinyFirebaseAnalytics.h; sourceTree = "<group>"; };
+		64EDE0892B9618AE00661736 /* ShinyFirebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ShinyFirebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		64EDE08C2B9618AE00661736 /* ShinyFirebase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShinyFirebase.h; sourceTree = "<group>"; };
 		64EDE09E2B96221400661736 /* FirebaseAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAnalytics.swift; sourceTree = "<group>"; };
 		E5C8F6142B9F58EA00722F1E /* FirebaseApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseApplication.swift; sourceTree = "<group>"; };
+		E5C8F6302B9F58EA00722F1E /* FirebaseMessaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseMessaging.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,62 +31,38 @@
 			files = (
 				E5C8F6222B9F59F300722F1E /* FirebaseAnalytics in Frameworks */,
 				E5C8F6242B9F59F300722F1E /* FirebaseInstallations in Frameworks */,
+				E5C8F6262B9F59F300722F1E /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		64B992EB2B97997E00BAFB55 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				64B993142B979ED500BAFB55 /* FBLPromises.xcframework */,
-				64B993122B979ED500BAFB55 /* FirebaseAnalytics.xcframework */,
-				64B993132B979ED500BAFB55 /* FirebaseCore.xcframework */,
-				64B993152B979ED500BAFB55 /* FirebaseCoreInternal.xcframework */,
-				64B9930F2B979ED500BAFB55 /* FirebaseInstallations.xcframework */,
-				64B993162B979ED500BAFB55 /* GoogleAppMeasurement.xcframework */,
-				64B993112B979ED500BAFB55 /* GoogleAppMeasurementIdentitySupport.xcframework */,
-				64B993102B979ED500BAFB55 /* GoogleUtilities.xcframework */,
-				64B993172B979ED500BAFB55 /* nanopb.xcframework */,
-				64B992EF2B97997E00BAFB55 /* FBLPromises.xcframework */,
-				64B992EE2B97997E00BAFB55 /* FirebaseAnalytics.xcframework */,
-				64B992F42B97997E00BAFB55 /* FirebaseCore.xcframework */,
-				64B992F12B97997E00BAFB55 /* FirebaseCoreInternal.xcframework */,
-				64B992F02B97997E00BAFB55 /* FirebaseInstallations.xcframework */,
-				64B992ED2B97997E00BAFB55 /* GoogleAppMeasurement.xcframework */,
-				64B992EC2B97997E00BAFB55 /* GoogleAppMeasurementIdentitySupport.xcframework */,
-				64B992F22B97997E00BAFB55 /* GoogleUtilities.xcframework */,
-				64B992F32B97997E00BAFB55 /* nanopb.xcframework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		64EDE07F2B9618AE00661736 = {
 			isa = PBXGroup;
 			children = (
-				64EDE08B2B9618AE00661736 /* ShinyFirebaseAnalytics */,
+				64EDE08B2B9618AE00661736 /* ShinyFirebase */,
 				64EDE08A2B9618AE00661736 /* Products */,
-				64B992EB2B97997E00BAFB55 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		64EDE08A2B9618AE00661736 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				64EDE0892B9618AE00661736 /* ShinyFirebaseAnalytics.framework */,
+				64EDE0892B9618AE00661736 /* ShinyFirebase.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		64EDE08B2B9618AE00661736 /* ShinyFirebaseAnalytics */ = {
+		64EDE08B2B9618AE00661736 /* ShinyFirebase */ = {
 			isa = PBXGroup;
 			children = (
-				64EDE08C2B9618AE00661736 /* ShinyFirebaseAnalytics.h */,
-				64EDE09E2B96221400661736 /* FirebaseAnalytics.swift */,
+				64EDE08C2B9618AE00661736 /* ShinyFirebase.h */,
 				E5C8F6142B9F58EA00722F1E /* FirebaseApplication.swift */,
+				E5C8F6302B9F58EA00722F1E /* FirebaseMessaging.swift */,
+				64EDE09E2B96221400661736 /* FirebaseAnalytics.swift */,
 			);
-			path = ShinyFirebaseAnalytics;
+			path = ShinyFirebase;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -111,16 +72,16 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64EDE08D2B9618AE00661736 /* ShinyFirebaseAnalytics.h in Headers */,
+				64EDE08D2B9618AE00661736 /* ShinyFirebase.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		64EDE0882B9618AE00661736 /* ShinyFirebaseAnalytics */ = {
+		64EDE0882B9618AE00661736 /* ShinyFirebase */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 64EDE0902B9618AE00661736 /* Build configuration list for PBXNativeTarget "ShinyFirebaseAnalytics" */;
+			buildConfigurationList = 64EDE0902B9618AE00661736 /* Build configuration list for PBXNativeTarget "ShinyFirebase" */;
 			buildPhases = (
 				64EDE0842B9618AE00661736 /* Headers */,
 				64EDE0852B9618AE00661736 /* Sources */,
@@ -131,13 +92,14 @@
 			);
 			dependencies = (
 			);
-			name = ShinyFirebaseAnalytics;
+			name = ShinyFirebase;
 			packageProductDependencies = (
 				E5C8F6212B9F59F300722F1E /* FirebaseAnalytics */,
 				E5C8F6232B9F59F300722F1E /* FirebaseInstallations */,
+				E5C8F6252B9F59F300722F1E /* FirebaseMessaging */,
 			);
-			productName = MauiFirebaseAnalytics;
-			productReference = 64EDE0892B9618AE00661736 /* ShinyFirebaseAnalytics.framework */;
+			productName = ShinyFirebase;
+			productReference = 64EDE0892B9618AE00661736 /* ShinyFirebase.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -155,7 +117,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 64EDE0832B9618AE00661736 /* Build configuration list for PBXProject "ShinyFirebaseAnalytics" */;
+			buildConfigurationList = 64EDE0832B9618AE00661736 /* Build configuration list for PBXProject "ShinyFirebase" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -171,7 +133,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				64EDE0882B9618AE00661736 /* ShinyFirebaseAnalytics */,
+				64EDE0882B9618AE00661736 /* ShinyFirebase */,
 			);
 		};
 /* End PBXProject section */
@@ -191,8 +153,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64EDE09F2B96221400661736 /* FirebaseAnalytics.swift in Sources */,
 				E5C8F6152B9F58EA00722F1E /* FirebaseApplication.swift in Sources */,
+				E5C8F6312B9F58EA00722F1E /* FirebaseMessaging.swift in Sources */,
+				64EDE09F2B96221400661736 /* FirebaseAnalytics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,7 +309,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = org.shiny.FirebaseAnalytics;
+				PRODUCT_BUNDLE_IDENTIFIER = org.shiny.ShinyFirebase;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
@@ -386,7 +349,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = org.shiny.FirebaseAnalytics;
+				PRODUCT_BUNDLE_IDENTIFIER = org.shiny.ShinyFirebase;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
@@ -401,7 +364,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		64EDE0832B9618AE00661736 /* Build configuration list for PBXProject "ShinyFirebaseAnalytics" */ = {
+		64EDE0832B9618AE00661736 /* Build configuration list for PBXProject "ShinyFirebase" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				64EDE08E2B9618AE00661736 /* Debug */,
@@ -410,7 +373,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		64EDE0902B9618AE00661736 /* Build configuration list for PBXNativeTarget "ShinyFirebaseAnalytics" */ = {
+		64EDE0902B9618AE00661736 /* Build configuration list for PBXNativeTarget "ShinyFirebase" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				64EDE0912B9618AE00661736 /* Debug */,
@@ -442,6 +405,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E5C8F6162B9F593D00722F1E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseInstallations;
+		};
+		E5C8F6252B9F59F300722F1E /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5C8F6162B9F593D00722F1E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

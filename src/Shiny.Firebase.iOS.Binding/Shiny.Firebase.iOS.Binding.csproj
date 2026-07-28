@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+      Single binding over ONE native shim framework (firebase_ios/native/shinyfirebase) carrying the
+      FirebaseCore / Cloud Messaging / Analytics shims together.
+
+      This must stay one framework.  The Firebase SPM products are static libraries, so every framework that
+      links them gets a private copy of FirebaseCore - splitting the shims across two frameworks gave the app
+      two FIRApp classes, and configuring one left the other unconfigured (shinyorg/shiny#1638).
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>$(IosTargetFrameworks)</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>true</ImplicitUsings>
+        <IsBindingProject>true</IsBindingProject>
+        <NoBindingEmbedding>true</NoBindingEmbedding>
+        <Description>First-party .NET binding for the native Firebase (iOS) SDK - Core, Cloud Messaging and Analytics.</Description>
+
+        <XcodeProject>$(MSBuildThisFileDirectory)../../firebase_ios/native/shinyfirebase/ShinyFirebase.xcodeproj</XcodeProject>
+        <ObjSharpieBind>False</ObjSharpieBind>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ObjcBindingApiDefinition Include="ApiDefinitions.cs" />
+        <NativeReference Include="$(MSBuildThisFileDirectory)../../firebase_ios/native/shinyfirebase/.build/ShinyFirebase.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>True</SmartLink>
+            <ForceLoad>True</ForceLoad>
+        </NativeReference>
+    </ItemGroup>
+
+    <Import Project="$(MSBuildThisFileDirectory)..\..\firebase_ios\Firebase-ios.targets" />
+</Project>

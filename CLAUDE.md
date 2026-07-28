@@ -11,12 +11,11 @@ Guidance for maintaining this repo. The public documentation site is a **separat
 src/                                        # all .NET library projects (the only things that pack)
   Shiny.Push.FirebaseMessaging/             # FCM push, on top of Shiny.Push
   Shiny.DocumentDb.Firestore.Mobile/        # on-device Firestore provider for Shiny.DocumentDb
-  Shiny.Firebase.Analytics.iOS.Binding/     # iOS Slim Bindings
-  Shiny.Firebase.Messaging.iOS.Binding/
+  Shiny.Firebase.iOS.Binding/               # iOS Slim Binding — Core + Messaging + Analytics (ONE framework)
   Shiny.Firebase.Firestore.iOS.Binding/
   Shiny.Firebase.Firestore.Android.Binding/ # Android (Java/AAR) binding
 firebase_ios/                               # NOT .NET — native Xcode/Swift wrapper projects…
-  native/{analytics,messaging,firestore}/   #   …built into .xcframeworks by
+  native/{shinyfirebase,firestore}/         #   …built into .xcframeworks by
   Firebase-ios.targets                      #   Firebase-ios.targets (xcodebuild)
 tests/                                      # managed-surface tests (IsPackable=false)
 samples/                                    # device/emulator verification harnesses (NOT in the .slnx)
@@ -27,6 +26,26 @@ plans/
 An iOS binding csproj reaches `firebase_ios` with `$(MSBuildThisFileDirectory)../../firebase_ios/…` — **two**
 levels up, because the project sits under `src/`. Getting this wrong is the classic breakage when moving
 projects around.
+
+### One shim framework per FirebaseApp — do not split
+
+**The Core/Messaging/Analytics shims must stay in the single `native/shinyfirebase` Xcode target.** The
+Firebase SPM products are *static* libraries and `Firebase-ios.targets` passes `MERGED_BINARY_TYPE=automatic`,
+so **every** framework that links them bakes in its own full copy of FirebaseCore. Two frameworks means two
+`FIRApp` classes: whichever one you call `configure()` on is not the one `Messaging.messaging()` consults, and
+the FCM token request silently never completes. That was shinyorg/shiny#1638 — split shims, hung
+`RequestAccess()`, and an `objc[…]: Class FIRApp is implemented in both …` warning at startup as the only clue.
+
+Verify after any change to the native projects:
+
+```bash
+nm firebase_ios/native/shinyfirebase/.build/ShinyFirebase.xcframework/ios-arm64/ShinyFirebase.framework/ShinyFirebase \
+  | grep -c '_OBJC_CLASS_\$_FIRApp$'      # must be 1
+```
+
+`native/firestore` is a deliberate exception: it configures and consumes FirebaseCore entirely within its own
+binary, so it is self-sufficient. An app using **both** Push and Firestore still carries two copies and will
+still log the duplicate-class warning — harmless today, but do not add a third.
 
 ## Package versions — Central Package Management
 

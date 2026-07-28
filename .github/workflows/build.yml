@@ -37,8 +37,7 @@ jobs:
       
     - name: Resolve SPM Dependencies
       run: |
-        xcodebuild -project firebase_ios/native/analytics/ShinyFirebaseAnalytics.xcodeproj -scheme ShinyFirebaseAnalytics -resolvePackageDependencies
-        xcodebuild -project firebase_ios/native/messaging/ShinyFirebaseMessaging.xcodeproj -scheme ShinyFirebaseMessaging -resolvePackageDependencies
+        xcodebuild -project firebase_ios/native/shinyfirebase/ShinyFirebase.xcodeproj -scheme ShinyFirebase -resolvePackageDependencies
         xcodebuild -project firebase_ios/native/firestore/ShinyFirebaseFirestore.xcodeproj -scheme ShinyFirebaseFirestore -resolvePackageDependencies
 
     - name: Build
