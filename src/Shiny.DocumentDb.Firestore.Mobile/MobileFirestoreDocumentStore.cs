@@ -24,6 +24,7 @@ public partial class MobileFirestoreDocumentStore : DocumentProviderBase, IDocum
     {
         this.options = options ?? throw new ArgumentNullException(nameof(options));
         this.services = services;
+        DocumentConfigurationValidator.Validate(options);
         this.idCache = new IdAccessorCache(options.ResolveIdPropertyName, options.IdConverters);
         this.InitializePlatform();
     }
@@ -37,8 +38,8 @@ public partial class MobileFirestoreDocumentStore : DocumentProviderBase, IDocum
     // Implemented per-platform: Android configures the native FirebaseFirestore instance; the stub no-ops.
     partial void InitializePlatform();
 
-    // Resolve the Firestore collection name for a document type (respects MapTypeToCollection).
-    string ResolveCollection<T>() => this.options.ResolveCollectionName(typeof(T), typeof(T).Name);
+    // Resolve the Firestore collection name for a document type (respects cfg.ToCollection / cfg.Table).
+    string ResolveCollection<T>() where T : class => this.options.ResolveCollectionName(typeof(T), this.ResolveDocumentTypeName<T>());
 
     // TypeNameResolver is internal to Shiny.DocumentDb, so mirror it here.
     static string ResolveTypeName<T>(TypeNameResolution resolution) => resolution switch

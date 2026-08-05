@@ -41,16 +41,43 @@ public class MobileFirestoreProviderTests
     }
 
     [Fact]
-    public void Options_mapping_api_is_fluent_and_chains()
+    public void ConfigureDocument_maps_collection_id_and_version()
     {
         var options = new MobileFirestoreOptions();
-        var returned = options
-            .MapTypeToCollection<Play>("plays")
-            .MapVersionProperty<Play>(x => x.Version)
-            .MapIdProperty<Play>(x => x.Id);
+        var returned = options.ConfigureDocument<Play>(cfg => cfg
+            .ToCollection("plays")
+            .MapVersionProperty(x => x.Version)
+            .MapIdProperty(x => x.Id)
+        );
 
         Assert.Same(options, returned);
+        Assert.Equal("plays", options.ResolveCollectionName(typeof(Play), nameof(Play)));
+        Assert.Equal(nameof(Play.Id), options.ResolveIdPropertyName(typeof(Play)));
+        Assert.NotNull(options.ResolveVersionMapping(typeof(Play)));
         Assert.True(options.PersistenceEnabled); // offline cache on by default
+    }
+
+    [Fact]
+    public void ConfigureDocument_defaults_collection_to_the_type_name()
+    {
+        var options = new MobileFirestoreOptions();
+        Assert.Equal(nameof(Play), options.ResolveCollectionName(typeof(Play), nameof(Play)));
+    }
+
+    [Fact]
+    public void Store_rejects_a_mapping_the_native_sdk_cannot_honor()
+    {
+        var services = new ServiceCollection();
+        services.AddMobileFirestoreDocumentStore(o =>
+        {
+            o.ProjectId = "test-project";
+            o.ConfigureDocument<Play>(cfg => cfg.MapTemporal());
+        });
+
+        var ex = Assert.Throws<DocumentConfigurationException>(
+            () => services.BuildServiceProvider().GetRequiredService<IDocumentStore>()
+        );
+        Assert.Contains("Firestore (mobile)", ex.Message);
     }
 
     [Fact]

@@ -21,7 +21,8 @@ public sealed record FirebaseUser(
 /// This obtains and refreshes the user's token in managed code. Wiring the token into the <b>native</b>
 /// Firestore SDK's request auth (so rules are enforced on native reads/writes) is the remaining integration
 /// seam — it needs a native <c>FirebaseAuth.signInWithCustomToken</c>, deferred with the native auth binding.
-/// Until then, scope per-user data by collection path (e.g. <c>MapTypeToCollection&lt;T&gt;($"users/{uid}/…")</c>).
+/// Until then, scope per-user data by collection path
+/// (e.g. <c>ConfigureDocument&lt;T&gt;(cfg =&gt; cfg.ToCollection($"users/{uid}/…"))</c>).
 /// </remarks>
 public interface IFirebaseIdentity
 {

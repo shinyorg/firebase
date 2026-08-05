@@ -157,7 +157,7 @@ builder.Services.AddMobileFirestoreDocumentStore(o =>
 {
     o.ProjectId = "my-project";           // optional when google-services.json is bundled
     o.PersistenceEnabled = true;          // default — offline cache on
-    o.MapTypeToCollection<Play>("plays"); // default collection = type name
+    o.ConfigureDocument<Play>(cfg => cfg.ToCollection("plays")); // default collection = type name
 });
 
 // Optional — managed Firebase Auth (REST)
@@ -186,7 +186,11 @@ await foreach (var change in store.NotifyOnChange<Play>(ct))
 ```
 
 The document id is the Firestore document id, taken from an `Id` property by default
-(`MapIdProperty<T>` to override). It must be set on every write — the provider does not generate ids.
+(`cfg.MapIdProperty(...)` to override). It must be set on every write — the provider does not generate ids.
+
+Everything about a document type is configured in one `ConfigureDocument<T>` block — `cfg.ToCollection(...)`,
+`cfg.MapIdProperty(...)`, `cfg.AddQueryFilter(...)`, `cfg.MapVersionProperty(...)`. `MapIdType<TId>`,
+`AddInterceptor` and `AddBulkInterceptor` stay store-level on the options.
 
 ## Current limitations
 
@@ -194,12 +198,15 @@ The provider is shipping in milestones. Today:
 
 - **`Insert` is an upsert.** `Insert`/`Update`/`Upsert` all map to native `set()`; there is no
   insert-if-absent yet.
-- **Write interceptors and `MapVersionProperty` are inert** — they configure but do not run, so optimistic
+- **Write interceptors and `cfg.MapVersionProperty` are inert** — they configure but do not run, so optimistic
   concurrency is not enforced. Keep that logic in calling code for now.
+- **No temporal, blob, computed, spatial, vector or full-text mappings.** The native SDK has no engine for
+  them and this provider keeps no sidecars, so mapping one is a `DocumentConfigurationException` when the
+  store is built rather than a surprise at first use.
 - **Security rules are not yet per-user.** `IFirebaseIdentity` obtains and refreshes tokens in managed code,
   but the token is not yet flowed into the native SDK's request auth, so rules do not see `request.auth.uid`
   for native traffic. Scope per-user data by collection path
-  (`MapTypeToCollection<T>($"users/{uid}/plays")`) until the native auth binding lands.
+  (`cfg.ToCollection($"users/{uid}/plays")`) until the native auth binding lands.
 - These throw `NotSupportedException`: the string-`WHERE` query overloads, `BatchInsert`, `SetProperty`,
   `RemoveProperty`, `GetDiff`, `ClearAll`, and `Select` projection.
 - `Count` and the aggregates materialize documents rather than using native aggregates.

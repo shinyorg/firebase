@@ -38,7 +38,7 @@ public partial class MobileFirestoreDocumentStore
         this.firestore.FirestoreSettings = settings;
     }
 
-    CollectionReference Collection<T>() => this.firestore.Collection(this.ResolveCollection<T>());
+    CollectionReference Collection<T>() where T : class => this.firestore.Collection(this.ResolveCollection<T>());
 
     internal System.Text.Json.JsonSerializerOptions? JsonOpts => this.options.JsonSerializerOptions;
 
