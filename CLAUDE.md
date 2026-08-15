@@ -110,7 +110,8 @@ change unless there's a reason not to.
 3. **Skill** (`skills/shiny-firebase/SKILL.md`)
    - This is the source of the published `shiny-firebase` Claude Code skill — the agent-facing
      "how to generate correct code" doc. It is synced to the `shinyorg/skills` repo (under
-     `plugins/shiny-client/skills/shiny-firebase`) by `.github/workflows/sync-skills.yml`.
+     `plugins/shiny/skills/shiny-firebase` — every Shiny skill lives in the single `shiny`
+     plugin) by `.github/workflows/sync-skills.yml`.
    - Keep `SKILL.md` aligned with the code. Update the `triggers:` keyword list in the frontmatter
      when a new public type / API is introduced.
    - If the default or recommended pattern changes, the skill's default guidance must change too.

@@ -1,4 +1,4 @@
-name: Sync Skills to Skills Repository
+name: Sync Skills
 
 on:
   push:
@@ -30,42 +30,34 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Sync skills directory
+      - name: Sync skills into the shiny plugin
+        env:
+          SOURCE_DIR: skills
         run: |
           set -euo pipefail
 
-          # This repo owns skills in two different plugins of shinyorg/skills:
-          #   shiny-firebase        -> shiny-client (mobile client libraries)
-          #   shiny-firestore-mobile -> shiny-data  (alongside shiny-documentdb)
-          # Each entry is "<skill-name>:<target-plugin>". A skill dir is copied whole, so
-          # SKILL.md plus any reference/ content syncs together.
-          SKILL_MAP="shiny-firebase:shiny-client shiny-firestore-mobile:shiny-data"
+          # All Shiny skills live in a single "shiny" plugin in shinyorg/skills.
+          # Every skill directory under $SOURCE_DIR is copied whole, so SKILL.md
+          # plus any reference/ content syncs together.
+          target_dir="skills-repo/plugins/shiny/skills"
+
+          if [ ! -d "$target_dir" ]; then
+            echo "::error::$target_dir does not exist in shinyorg/skills — has the plugin been renamed?"
+            exit 1
+          fi
 
           synced=0
-          for entry in $SKILL_MAP; do
-            skill="${entry%%:*}"
-            plugin="${entry##*:}"
-            src="source/skills/$skill"
-            dest="skills-repo/plugins/$plugin/skills"
-
-            if [ ! -d "$src" ]; then
-              echo "::warning::Skill '$skill' not found at $src — skipping."
-              continue
-            fi
-            if [ ! -d "skills-repo/plugins/$plugin" ]; then
-              echo "::error::Target plugin '$plugin' does not exist in the skills repo."
-              exit 1
-            fi
-
-            echo "Syncing $skill -> plugins/$plugin/skills/$skill"
-            rm -rf "${dest:?}/$skill"
-            mkdir -p "$dest"
-            cp -r "$src" "$dest/"
+          for skill_dir in "source/$SOURCE_DIR"/*/; do
+            [ -d "$skill_dir" ] || continue
+            skill_name=$(basename "$skill_dir")
+            echo "Syncing $skill_name -> plugins/shiny/skills/$skill_name"
+            rm -rf "${target_dir:?}/$skill_name"
+            cp -r "$skill_dir" "$target_dir/$skill_name"
             synced=$((synced + 1))
           done
 
           if [ "$synced" -eq 0 ]; then
-            echo "::error::No skills were synced — check SKILL_MAP against source/skills/."
+            echo "::error::No skills found under $SOURCE_DIR/ — nothing to sync."
             exit 1
           fi
           echo "Synced $synced skill(s)."
@@ -75,22 +67,18 @@ jobs:
         with:
           token: ${{ secrets.SKILLS_REPO_TOKEN }}
           path: skills-repo
-          commit-message: "Update Firebase skills from Firebase repository"
-          title: "Update Firebase skills (shiny-firebase, shiny-firestore-mobile)"
+          commit-message: "Update skills from shinyorg/firebase"
+          title: "Update skills from Shiny Firebase"
           body: |
-            This PR updates the skills owned by the [Firebase repository](https://github.com/shinyorg/firebase).
+            This PR updates the `shiny` plugin skills from the [Shiny Firebase repository](https://github.com/shinyorg/firebase).
 
-            | Skill | Plugin |
-            |---|---|
-            | `shiny-firebase` | `shiny-client` |
-            | `shiny-firestore-mobile` | `shiny-data` |
-
+            **Source branch:** `${{ github.ref_name }}`
             **Source commit:** ${{ github.sha }}
             **Triggered by:** @${{ github.actor }}
 
             ---
             *This PR was automatically created by the [sync-skills workflow](https://github.com/shinyorg/firebase/actions/workflows/sync-skills.yml).*
-          branch: update-firebase-skills
+          branch: update-skills-firebase
           delete-branch: true
           labels: |
             automated
