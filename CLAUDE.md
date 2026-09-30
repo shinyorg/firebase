@@ -143,7 +143,10 @@ Nerdbank.GitVersioning) — **the raw version portion only** (strip any prerelea
 suffix, e.g. `5.0.0-beta` → `5.0.0`).
 
 **Heading style — match the existing file.** Releases are grouped under a `## v<major>` heading,
-with each release as `### <major>.<minor>.<patch> - <date>` (e.g. `### 4.0.0 - March 26, 2026`).
+with each release as `### Firebase <major>.<minor>.<patch> - <date>` (e.g. `### Firebase 5.2.0 - September 30, 2026`).
+The **`Firebase` prefix is required**: the file is shared with the Shiny client packages, which are also on a 5.x
+line, so a bare `### 5.2.0` collides with (and reads as) the client release of the same number. Older Firebase
+notes predate the prefix and sit under client headings — leave them where they are.
 
 **If the version isn't released yet (beta / prerelease, or work-in-progress for the next version):**
 - If a `### <version> - TBD` heading already exists, **add the note under that existing section**.

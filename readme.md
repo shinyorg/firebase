@@ -134,7 +134,7 @@ service account. This one runs **on the device**, under the end user's Firebase 
 - iOS framework ships a merged Apple privacy manifest for Firestore and its dependencies (ITMS-91061)
 - Trim/AOT clean — pass a `JsonTypeInfo<T>` (and set `UseReflectionFallback = false`) for full-AOT builds
 
-Requires `Shiny.DocumentDb` 12.0.0 or later.
+Requires `Shiny.DocumentDb` 14.0.0 or later.
 
 ## Platform support
 

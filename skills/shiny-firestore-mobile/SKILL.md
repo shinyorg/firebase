@@ -113,7 +113,7 @@ builder.Services.AddMobileFirestoreDocumentStore(o =>
 });
 ```
 
-> **Requires `Shiny.DocumentDb` 13.x.** The flat per-type methods (`o.MapTypeToCollection<T>`,
+> **Requires `Shiny.DocumentDb` 14.x** (provider 4.0.0+). The flat per-type methods (`o.MapTypeToCollection<T>`,
 > `o.MapIdProperty<T>`, `o.AddQueryFilter<T>`, `o.MapVersionProperty<T>`, `o.OnBeforeWrite<T>`,
 > `o.OnAfterWrite<T>`) were **removed** in 3.0.0 — never generate them. They all live on the
 > `ConfigureDocument<T>` builder now. Store-level members (`MapIdType<TId>`, `AddInterceptor`,
