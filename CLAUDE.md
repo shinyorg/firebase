@@ -17,10 +17,10 @@ src/                                        # all .NET library projects (the onl
 firebase_ios/                               # NOT .NET — native Xcode/Swift wrapper projects…
   native/{shinyfirebase,firestore}/         #   …built into .xcframeworks by
   Firebase-ios.targets                      #   Firebase-ios.targets (xcodebuild)
+  merge-privacy-manifests.py                #   merges SPM privacy manifests into each framework
 tests/                                      # managed-surface tests (IsPackable=false)
 samples/                                    # device/emulator verification harnesses (NOT in the .slnx)
 skills/                                     # published Claude Code skills, synced to shinyorg/skills
-plans/
 ```
 
 An iOS binding csproj reaches `firebase_ios` with `$(MSBuildThisFileDirectory)../../firebase_ios/…` — **two**
@@ -77,8 +77,8 @@ Nerdbank flowing into each library's `.nuspec` as a dependency. Don't drop it, a
 had already drifted (most projects on 3.10.91, the Android binding and both samples silently on 3.9.50).
 
 If versioning ever looks wrong — e.g. a package suddenly reporting `1.0.0` — suspect that Nerdbank stopped
-being injected. `Shiny.Push.FirebaseMessaging` reading anything other than `5.0.1` is the giveaway, since
-`1.0.0` is MSBuild's default `PackageVersion` and looks plausible.
+being injected. `Shiny.Push.FirebaseMessaging` reading anything other than the `version` in the root
+`version.json` is the giveaway, since `1.0.0` is MSBuild's default `PackageVersion` and looks plausible.
 
 Two products ship from here, on **different version lines** — see `version.json` at the root vs the nested one
 under the Firestore provider:
@@ -88,9 +88,9 @@ under the Firestore provider:
   support on Android. The public surface is the `AddPushFirebaseMessaging` extensions and the
   `FirebaseConfiguration` record; everything else builds on the `Shiny.Push` contracts (`IPushManager`,
   `IPushDelegate`, `IPushProvider`, `IPushTagSupport`).
-- **`Shiny.DocumentDb.Firestore.Mobile`** (1.x) is an on-device Firestore provider for Shiny.DocumentDb. It has
-  its **own `CLAUDE.md`** — read that before touching it; its docs, release notes, and versioning rules all
-  differ from this file's.
+- **`Shiny.DocumentDb.Firestore.Mobile`** (4.x) is an on-device Firestore provider for Shiny.DocumentDb. Its
+  docs, release notes, skill and version line all differ from the Push package's — see
+  [Firestore Mobile provider](#firestore-mobile-provider) below before touching it.
 
 ## After every new feature or fix
 
@@ -111,7 +111,7 @@ change unless there's a reason not to.
      (the `IPushDelegate` / `IPushProvider` / `FirebaseConfig` signatures) and that the platform
      SDK versions line up with what `Shiny.Push` targets.
 
-2. **Documentation site** (`~/Desktop/dev/documentation/src/content/docs/push/`)
+2. **Documentation site** (`~/Desktop/dev/documentation/src/content/docs/client/push/`)
    - Update the relevant page — the Firebase iOS guide is `firebase-ios.mdx`; cross-cutting push
      behavior may also touch `native.mdx`, `architecture.mdx`, or `faq.mdx`.
    - Add a **release note** — see the release-note rules below.
@@ -134,8 +134,9 @@ change unless there's a reason not to.
 
 ## Release notes
 
-Firebase ships as part of the Push module, so release notes live in the documentation repo at
-`~/Desktop/dev/documentation/src/content/docs/push/release-notes.mdx`.
+Firebase ships as part of the Push module, so release notes live in the documentation repo alongside the rest
+of the Shiny client packages, at `~/Desktop/dev/documentation/src/content/docs/client/release-notes.mdx`. Each
+release there is broken down by component — put Firebase notes under a `#### Push Notifications` subheading.
 
 **Which version does a note go against?** Use the `version` field in `version.json` (this repo uses
 Nerdbank.GitVersioning) — **the raw version portion only** (strip any prerelease/build-metadata
@@ -165,6 +166,20 @@ documentation repo after editing content):
   the MDX build fails.
 - When documenting an API, verify it against the real code in this repo rather than inventing
   surface — the docs repo has no access to the library source.
+
+## Firestore Mobile provider
+
+`Shiny.DocumentDb.Firestore.Mobile` follows the same four-artifact rule, but every artifact lives somewhere else:
+
+- **Version:** the nested `src/Shiny.DocumentDb.Firestore.Mobile/version.json` (it `inherit`s the root file but
+  overrides `version`), not the root one.
+- **Docs + release notes:** `~/Desktop/dev/documentation/src/content/docs/documentdb/firestore-mobile.mdx`. Its
+  releases are listed in that page's own `## Release notes` section as `### <version> - <date|TBD>` (no
+  `## v<major>` grouping) — **not** in `documentdb/release-notes.mdx`, which versions DocumentDB itself.
+- **Skill:** `skills/shiny-firestore-mobile/SKILL.md`.
+- **readme.md:** the `# Mobile Firestore` half of the root readme.
+- **Tests:** `tests/` covers its managed surface; the native heads are verified against the Firestore emulator
+  with the harnesses under `samples/`.
 
 ## Blog posts (only when explicitly requested)
 
