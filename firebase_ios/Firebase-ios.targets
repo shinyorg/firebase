@@ -25,6 +25,10 @@
 		<_XcArchiveMacCatalystFullPath>$([System.IO.Path]::Combine($(_XcodeBuildDirFullPath), $(XcodeScheme)-maccatalyst.xcarchive))</_XcArchiveMacCatalystFullPath>
 
 		<_XcFrameworkFullPath>$([System.IO.Path]::Combine($(_XcodeBuildDirFullPath), $(XcodeScheme).xcframework))</_XcFrameworkFullPath>
+
+		<!-- where the archives leave the SPM dependencies' privacy bundles (BuildProductsPath / UninstalledProducts) -->
+		<_XcArchiveIntermediatesFullPath>$([System.IO.Path]::Combine($(_XcodeBuildDirFullPath), Build, Intermediates.noindex, ArchiveIntermediates, $(XcodeScheme)))</_XcArchiveIntermediatesFullPath>
+		<_MergePrivacyManifestsScript>$(MSBuildThisFileDirectory)merge-privacy-manifests.py</_MergePrivacyManifestsScript>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -32,6 +36,7 @@
 		<_XcodeProjectInputs Include="$(_XcodeProjectDirFullPath)/**/*.h" Exclude="$(_XcodeBuildDirFullPath)/**" />
 		<_XcodeProjectInputs Include="$(_XcodeProjectFullPath)/*.pbxproj" />
 		<_XcodeProjectInputs Include="$(_XcodeProjectFullPath)/*.xcworkspace" />
+		<_XcodeProjectInputs Include="$(_MergePrivacyManifestsScript)" />
 	</ItemGroup>
 
 	<Target Condition=" '$(XcodeBuildXCFramework)' == 'true' " DependsOnTargets="$(BuildXCFrameworkDependsOnTargets)" BeforeTargets="ProcessFrameworkReferences" Name="BuildXCFramework" Inputs="@(_XcodeProjectInputs)" Outputs="$(_XcFrameworkFullPath)/Info.plist">
@@ -46,6 +51,13 @@
 			<XcodeBuiltFrameworks Condition=" '$(XcodeBuildiOSSimulator)' == 'True' " Include="$(_XcArchiveiOSSimulatorFullPath)/Products/Library/Frameworks/$(XcodeScheme).framework" />
 			<XcodeBuiltFrameworks Condition=" '$(XcodeBuildMacCatalyst)' == 'True' " Include="$(_XcArchiveMacCatalystFullPath)/Products/Library/Frameworks/$(XcodeScheme).framework" />
 		</ItemGroup>
+
+		<!--
+		The Firebase SPM products are static and get merged into our binary, but their PrivacyInfo.xcprivacy files stay
+		behind in sibling resource bundles. Merge them into the framework itself or App Store Connect rejects the app
+		with ITMS-91061 (shinyorg/firebase#1).
+		-->
+		<Exec Command="python3 &quot;$(_MergePrivacyManifestsScript)&quot; &quot;$(_XcArchiveIntermediatesFullPath)&quot; @(XcodeBuiltFrameworks->'&quot;%(Identity)&quot;', ' ')" />
 
 		<RemoveDir Directories="$(_XcFrameworkFullPath)" />
 

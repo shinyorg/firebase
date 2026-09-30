@@ -43,6 +43,18 @@ nm firebase_ios/native/shinyfirebase/.build/ShinyFirebase.xcframework/ios-arm64/
   | grep -c '_OBJC_CLASS_\$_FIRApp$'      # must be 1
 ```
 
+### Privacy manifests are merged at build time
+
+Because the Firebase SDKs are statically merged into our frameworks, **our** framework must carry their Apple
+privacy manifests or App Store Connect rejects the app (ITMS-91061, shinyorg/firebase#1). SPM leaves each
+dependency's `PrivacyInfo.xcprivacy` in a sibling resource bundle, so `Firebase-ios.targets` runs
+`firebase_ios/merge-privacy-manifests.py` after archiving to merge them into each framework slice. Keep that
+step when touching the targets, and after any native change confirm every slice has one:
+
+```bash
+find firebase_ios/native/*/.build/*.xcframework -name PrivacyInfo.xcprivacy   # 3 per framework
+```
+
 `native/firestore` is a deliberate exception: it configures and consumes FirebaseCore entirely within its own
 binary, so it is self-sufficient. An app using **both** Push and Firestore still carries two copies and will
 still log the duplicate-class warning — harmless today, but do not add a third.

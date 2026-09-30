@@ -27,6 +27,7 @@ triggers:
   - firestore snapshot listener
   - firebase auth maui
   - firebase anonymous sign in
+  - ITMS-91061
 ---
 
 # Shiny Mobile Firestore Provider
@@ -68,6 +69,10 @@ the same 9-case emulator harness (CRUD, real-time, query/order/count/delete, ide
 identically to Android and iOS. Anything other than these two TFMs throws `PlatformNotSupportedException`, so
 multi-targeted app code must guard the mobile paths (`#if ANDROID || IOS`) or avoid resolving the store
 elsewhere.
+
+On iOS the `ShinyFirebaseFirestore` framework ships a merged Apple privacy manifest (`PrivacyInfo.xcprivacy`)
+for Firestore and its statically linked dependencies (4.0.1+). Do not generate a build step that copies one in;
+if App Store Connect reports ITMS-91061 against that framework, the fix is upgrading the package.
 
 ## Installation
 

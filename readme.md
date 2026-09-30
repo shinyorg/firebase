@@ -26,6 +26,8 @@ Firebase SDKs
 - Custom push delegate for handling notification events
 - Native iOS Firebase SDK 12.x via a single Slim Binding framework — one embedded copy of FirebaseCore, so
   there is no duplicate-`FIRApp` collision between the Core, Messaging and Analytics shims
+- Ships an Apple privacy manifest (`PrivacyInfo.xcprivacy`) merged from every Firebase SDK linked into the iOS
+  framework, so App Store Connect does not reject the upload with ITMS-91061
 
 ## Installation
 
@@ -129,6 +131,7 @@ service account. This one runs **on the device**, under the end user's Firebase 
 - LINQ queries pushed down to the native Firestore query (filter, order, limit)
 - Managed Firebase Auth identity (anonymous + email/password, token refresh)
 - Firestore emulator support
+- iOS framework ships a merged Apple privacy manifest for Firestore and its dependencies (ITMS-91061)
 - Trim/AOT clean — pass a `JsonTypeInfo<T>` (and set `UseReflectionFallback = false`) for full-AOT builds
 
 Requires `Shiny.DocumentDb` 12.0.0 or later.
