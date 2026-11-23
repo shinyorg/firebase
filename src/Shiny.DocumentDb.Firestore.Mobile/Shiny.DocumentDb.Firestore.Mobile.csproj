@@ -2,6 +2,8 @@
     <PropertyGroup>
         <TargetFrameworks>$(BaseTargetFramework);$(IosTargetFrameworks);$(AndroidTargetFrameworks)</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
+        <!-- Own version line, released by firestore-v* tags (see Directory.Build.props). -->
+        <Version>$(FirestoreVersion)</Version>
         <!-- iOS is a full-AOT target and the provider offers UseReflectionFallback=false for it, so the
              trim/AOT analyzers need to be on for that promise to mean anything. -->
         <IsAotCompatible>true</IsAotCompatible>

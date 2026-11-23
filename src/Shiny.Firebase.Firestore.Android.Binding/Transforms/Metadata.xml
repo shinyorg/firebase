@@ -18,6 +18,33 @@
     <remove-node path="/api/package[@name='com.google.firebase.firestore.remote']" />
     <remove-node path="/api/package[@name='com.google.firebase.firestore.util']" />
 
+    <!--
+      Protobuf-lite generated wire types (Firestore's gRPC protocol). They extend
+      com.google.protobuf.GeneratedMessageLite from protobuf-javalite, which is classpath-only (Bind=false).
+      The net10 generator silently dropped them for the unresolved base; the net11 generator keeps them and
+      they fail with CS0234 'Com.Google.Protobuf'. Not public API — strip them explicitly.
+    -->
+    <remove-node path="/api/package[@name='com.google.firestore.v1']" />
+    <remove-node path="/api/package[@name='com.google.firestore.bundle']" />
+    <remove-node path="/api/package[@name='com.google.firestore.admin.v1']" />
+    <remove-node path="/api/package[@name='com.google.apphosting.datastore.testing']" />
+    <remove-node path="/api/package[@name='com.google.cloud.datastore.core.number']" />
+    <!-- Blob's ByteString overloads (toByteString, fromByteString, createBsonBinary) — the byte[] ones stay. -->
+    <remove-node path="/api/package[@name='com.google.firebase.firestore']/class[@name='Blob']/method[@return='com.google.protobuf.ByteString' or parameter[@type='com.google.protobuf.ByteString']]" />
+
+    <!--
+      Same net11 change for firebase-components / firebase-events (also Bind=false): component-registration
+      plumbing the Firebase runtime discovers by reflection. Not called from managed code.
+    -->
+    <remove-node path="/api/package[@name='com.google.firebase']/class[@name='FirebaseCommonRegistrar']" />
+    <remove-node path="/api/package[@name='com.google.firebase']/class[@name='FirebaseCommonKtxRegistrar']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore']/class[@name='FirestoreRegistrar']" />
+    <remove-node path="/api/package[@name='com.google.firebase.firestore']/class[@name='FirebaseFirestoreKtxRegistrar']" />
+    <remove-node path="/api/package[@name='com.google.firebase.tracing']" />
+    <remove-node path="/api/package[@name='com.google.firebase.platforminfo']" />
+    <remove-node path="/api/package[@name='com.google.firebase.heartbeatinfo']" />
+    <remove-node path="/api/package[@name='com.google.firebase.internal']/class[@name='DataCollectionConfigStorage']/constructor" />
+
     <!-- Internal firebase-common plumbing that leaks broken generics (IList&lt;IRunnable&gt;). -->
     <remove-node path="/api/package[@name='com.google.firebase.concurrent']" />
 

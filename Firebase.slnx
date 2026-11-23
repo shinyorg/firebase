@@ -1,6 +1,7 @@
 ﻿<Solution>
     <Folder Name="/Solution/">
-        <File Path=".github\workflows\build.yml" />
+        <File Path=".github\workflows\ci.yml" />
+        <File Path=".github\workflows\release.yml" />
         <File Path=".github\workflows\sync-skills.yml" />
         <File Path="Directory.Build.props" />
         <File Path="Directory.Build.targets" />
@@ -11,8 +12,6 @@
         <File Path="nuget.txt" />
         <File Path="skills\shiny-firebase\SKILL.md" />
         <File Path="skills\shiny-firestore-mobile\SKILL.md" />
-        <File Path="src\Shiny.DocumentDb.Firestore.Mobile\version.json" />
-        <File Path="version.json" />
         <File Path="readme.md" />
     </Folder>
     <Project Path="src\Shiny.Firebase.iOS.Binding\Shiny.Firebase.iOS.Binding.csproj" />

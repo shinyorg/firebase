@@ -21,8 +21,21 @@
         <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     </PropertyGroup>
     
+    <!--
+      Versions come from release tags only (see .github/workflows/release.yml) - nothing to bump in the repo.
+      Two product lines ship from here:
+        v<version>           -> PushVersion: Shiny.Push.FirebaseMessaging + the three Shiny.Firebase.*.Binding packages
+        firestore-v<version> -> FirestoreVersion: Shiny.DocumentDb.Firestore.Mobile
+      Local and CI builds get 0.0.0-dev. Never pass -p:Version - it is global and would stamp every project.
+    -->
     <PropertyGroup>
-        <BaseTargetFramework>net10.0</BaseTargetFramework>
+        <PushVersion Condition="'$(PushVersion)' == ''">0.0.0-dev</PushVersion>
+        <FirestoreVersion Condition="'$(FirestoreVersion)' == ''">0.0.0-dev</FirestoreVersion>
+        <Version>$(PushVersion)</Version>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <BaseTargetFramework>net11.0</BaseTargetFramework>
         <IosTargetFrameworks>$(BaseTargetFramework)-ios</IosTargetFrameworks>
         <AndroidTargetFrameworks>$(BaseTargetFramework)-android</AndroidTargetFrameworks>
     </PropertyGroup>

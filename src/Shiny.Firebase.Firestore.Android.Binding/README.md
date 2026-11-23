@@ -14,7 +14,7 @@ logged `overall: ALLPASS`. Not yet in `Firebase.slnx` (the android head is refer
 explicitly. Bound (`Bind="true"`): `firebase-firestore`, `firebase-common`, `play-services-tasks`. Classpath
 only (`Bind="false"`): `play-services-basement`/`-base`, `firebase-components`/`-annotations`/`-encoders`/
 `-encoders-json`/`-auth-interop`/`-appcheck-interop`, `protolite-well-known-types`,
-`firebase-database-collection`, gRPC 1.62.2 (`grpc-android`/`-okhttp`/`-protobuf-lite`/`-stub`/`-core`/`-api`/
+`firebase-database-collection`, gRPC 1.84.0 (`grpc-android`/`-okhttp`/`-protobuf-lite`/`-stub`/`-core`/`-api`/
 `-context`/`-util`), `protobuf-javalite`, `perfmark-api`, `re2j`. Via Xamarin NuGets (KMP/dedup-safe):
 `Xamarin.AndroidX.Collection`/`Core`/`Annotation`/`Lifecycle.Process`/`DataStore.Preferences(.Core)`,
 `Xamarin.Google.Guava` (full guava — replaces the Maven one to avoid the `ListenableFuture` duplicate; okio
@@ -49,14 +49,14 @@ binding generator will report missing types — satisfy each with the matching `
    `DocumentSnapshot`/`QuerySnapshot`, `ListenerRegistration`, `Transaction`/`RunTransaction`,
    `FirebaseFirestoreSettings` (persistence), `UseEmulator`; plus `FirebaseAuth`, `FirebaseUser`.
 6. Add to `Firebase.slnx` and reference from `Shiny.DocumentDb.Firestore.Mobile` under a
-   `net10.0-android` condition.
+   `net11.0-android` condition.
 
 ## Concrete progress (2026-07)
 
 Real build attempt done; the path is proven and characterized. What's established:
 
 - **Versions** (Google Maven, `Repository="Google"` — Firebase is NOT on Maven Central):
-  firestore **26.4.1**, auth **24.2.0**, common **22.1.0**.
+  firestore **27.2.0**, common **23.0.0** (auth **24.2.0**, still deferred).
 - **Toolchain bug worked around:** the SDK's `_VerifyJavaDependencies` task crashes (`XAJDV7004`,
   null-version parse) on Firebase's BOM-managed transitive POMs. Bypassed by switching to explicit
   `Sdk.props`/`Sdk.targets` imports and defining an empty `_VerifyJavaDependencies` target *after* the
@@ -80,7 +80,7 @@ Real build attempt done; the path is proven and characterized. What's establishe
    (`play-services-base`/`-tasks`, `grpc`, `protobuf-javalite`, AndroidX) → satisfy each with the matching
    `Xamarin.AndroidX.*` / `Xamarin.GooglePlayServices.*` binding NuGet or `<AndroidMavenLibrary>`.
 3. When green, remove the `$(BuildFirebaseBinding)` gate, add to `Firebase.slnx`, and reference from
-   `Shiny.DocumentDb.Firestore.Mobile` under `net10.0-android`.
+   `Shiny.DocumentDb.Firestore.Mobile` under `net11.0-android`.
 
 ## Config
 

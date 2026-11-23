@@ -65,30 +65,42 @@ still log the duplicate-class warning — harmless today, but do not add a third
 `<PackageReference Include="X" />` with **no `Version`** — adding one back fails the build (NU1008). To change
 or add a package: add a `<PackageVersion Include="X" Version="…" />` centrally, then reference it bare.
 
-`Nerdbank.GitVersioning` is applied to every project from `Directory.Build.targets`:
+## Versioning and releases — tags, not files
 
-```xml
-<PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="All"/>
-```
+**The release tag is the version. There is nothing to bump in the repo.** Nerdbank.GitVersioning and the
+`version.json` files are gone (removed for 7.0.0 / 5.0.0). Work happens on `main`; CI (`.github/workflows/ci.yml`)
+builds every push and PR as `0.0.0-dev` without publishing. Releases come from `.github/workflows/release.yml`.
 
-with its version supplied centrally like everything else. **`PrivateAssets="All"` is load-bearing** — it stops
-Nerdbank flowing into each library's `.nuspec` as a dependency. Don't drop it, and don't add a per-project
-`PackageReference Update` to override the version; that is what this looked like before CPM, and the overrides
-had already drifted (most projects on 3.10.91, the Android binding and both samples silently on 3.9.50).
+Two products ship from here, on **different version lines**, each with its own tag:
 
-If versioning ever looks wrong — e.g. a package suddenly reporting `1.0.0` — suspect that Nerdbank stopped
-being injected. `Shiny.Push.FirebaseMessaging` reading anything other than the `version` in the root
-`version.json` is the giveaway, since `1.0.0` is MSBuild's default `PackageVersion` and looks plausible.
+| Tag | MSBuild property | Packages |
+|---|---|---|
+| `v7.0.0` | `PushVersion` | `Shiny.Push.FirebaseMessaging` + `Shiny.Firebase.iOS.Binding`, `Shiny.Firebase.Firestore.iOS.Binding`, `Shiny.Firebase.Firestore.Android.Binding` |
+| `firestore-v5.0.0` | `FirestoreVersion` | `Shiny.DocumentDb.Firestore.Mobile` |
 
-Two products ship from here, on **different version lines** — see `version.json` at the root vs the nested one
-under the Firestore provider:
+`Directory.Build.props` defaults both properties to `0.0.0-dev` and sets `Version` from `PushVersion`; the Firestore
+csproj overrides `Version` with `FirestoreVersion`. **Never pass `-p:Version`** — it is a global property and
+stamps every project, both lines, with the same number.
 
-- **`Shiny.Push.FirebaseMessaging`** (5.x) wraps Firebase Cloud Messaging on top of the Shiny Push
+The Firestore bindings ride the **Push** line, so a `firestore-v*` release depends on them at the nearest `v*`
+tag behind the released commit (`git describe --match 'v[0-9]*'`). If the bindings changed, tag the Push line
+first. A suffix (`v7.0.0-beta.1`) makes a prerelease. `release.yml` can also be run by hand with a product and
+version; it creates the tag.
+
+**History before tags.** No tags exist before `v7.0.0` / `firestore-v5.0.0`. Nerdbank used a 3-part
+`version.json`, so the NuGet version stayed fixed until someone edited the file, and every push to a `v*` branch
+re-built the same version and published nothing (`--skip-duplicate`). Commits after a version's first publish
+silently did not ship. NuGet publish timestamps are the source of truth for what shipped in a pre-7.0 release. Do
+not retro-tag old commits.
+
+Published lines going in: Push 6.0.0 (and the three bindings) → 7.0.0, Firestore 4.0.1 → 5.0.0.
+
+- **`Shiny.Push.FirebaseMessaging`** (7.x) wraps Firebase Cloud Messaging on top of the Shiny Push
   infrastructure — the native Firebase iOS SDK via the bindings above on iOS, and `Shiny.Push`'s built-in FCM
   support on Android. The public surface is the `AddPushFirebaseMessaging` extensions and the
   `FirebaseConfiguration` record; everything else builds on the `Shiny.Push` contracts (`IPushManager`,
   `IPushDelegate`, `IPushProvider`, `IPushTagSupport`).
-- **`Shiny.DocumentDb.Firestore.Mobile`** (4.x) is an on-device Firestore provider for Shiny.DocumentDb. Its
+- **`Shiny.DocumentDb.Firestore.Mobile`** (5.x) is an on-device Firestore provider for Shiny.DocumentDb. Its
   docs, release notes, skill and version line all differ from the Push package's — see
   [Firestore Mobile provider](#firestore-mobile-provider) below before touching it.
 
@@ -123,7 +135,8 @@ change unless there's a reason not to.
    - This is the source of the published `shiny-firebase` Claude Code skill — the agent-facing
      "how to generate correct code" doc. It is synced to the `shinyorg/skills` repo (under
      `plugins/shiny/skills/shiny-firebase` — every Shiny skill lives in the single `shiny`
-     plugin) by `.github/workflows/sync-skills.yml`.
+     plugin) by `.github/workflows/sync-skills.yml`, which `release.yml` calls after a release ships (or run it
+     by hand) — so the published skill matches a shipped version.
    - Keep `SKILL.md` aligned with the code. Update the `triggers:` keyword list in the frontmatter
      when a new public type / API is introduced.
    - If the default or recommended pattern changes, the skill's default guidance must change too.
@@ -138,14 +151,14 @@ Firebase ships as part of the Push module, so release notes live in the document
 of the Shiny client packages, at `~/Desktop/dev/documentation/src/content/docs/client/release-notes.mdx`. Each
 release there is broken down by component — put Firebase notes under a `#### Push Notifications` subheading.
 
-**Which version does a note go against?** Use the `version` field in `version.json` (this repo uses
-Nerdbank.GitVersioning) — **the raw version portion only** (strip any prerelease/build-metadata
-suffix, e.g. `5.0.0-beta` → `5.0.0`).
+**Which version does a note go against?** The next tag on that product's line — one past the latest
+`v*` (Push) or `firestore-v*` (Firestore) tag, or past the latest NuGet version if the line has no tag yet. Use the
+raw version only (strip any prerelease suffix, e.g. `7.1.0-beta.1` → `7.1.0`).
 
 **Heading style — match the existing file.** Releases are grouped under a `## v<major>` heading,
-with each release as `### Firebase <major>.<minor>.<patch> - <date>` (e.g. `### Firebase 5.2.0 - September 30, 2026`).
-The **`Firebase` prefix is required**: the file is shared with the Shiny client packages, which are also on a 5.x
-line, so a bare `### 5.2.0` collides with (and reads as) the client release of the same number. Older Firebase
+with each release as `### Firebase Push <major>.<minor>.<patch> - <date>` (e.g. `### Firebase Push 7.0.0 - TBD`).
+The **`Firebase Push` prefix is required**: the file is shared with the Shiny client packages, which are on the
+same major line, so a bare `### 7.0.0` collides with (and reads as) the client release of the same number. Older Firebase
 notes predate the prefix and sit under client headings — leave them where they are.
 
 **If the version isn't released yet (beta / prerelease, or work-in-progress for the next version):**
@@ -174,8 +187,8 @@ documentation repo after editing content):
 
 `Shiny.DocumentDb.Firestore.Mobile` follows the same four-artifact rule, but every artifact lives somewhere else:
 
-- **Version:** the nested `src/Shiny.DocumentDb.Firestore.Mobile/version.json` (it `inherit`s the root file but
-  overrides `version`), not the root one.
+- **Version:** its own `firestore-v*` tag line (`FirestoreVersion`), not the Push `v*` tags — see
+  [Versioning and releases](#versioning-and-releases--tags-not-files).
 - **Docs + release notes:** `~/Desktop/dev/documentation/src/content/docs/documentdb/firestore-mobile.mdx`. Its
   releases are listed in that page's own `## Release notes` section as `### <version> - <date|TBD>` (no
   `## v<major>` grouping) — **not** in `documentdb/release-notes.mdx`, which versions DocumentDB itself.

@@ -15,7 +15,7 @@ Binding** pattern, and Firestore must too:
 1. A small **Swift wrapper** in an Xcode *framework* project under `firebase_ios/native/<name>/`, exposing an
    `@objc` surface containing **only what the managed adapter needs**.
 2. The Xcode project pulls Firebase via an **SPM package reference** to `firebase-ios-sdk`
-   (`XCRemoteSwiftPackageReference`, currently pinned `12.15.0`, `upToNextMajorVersion`).
+   (`XCRemoteSwiftPackageReference`, currently pinned `13.2.0`, `upToNextMajorVersion`).
 3. `firebase_ios/Firebase-ios.targets` runs `xcodebuild archive` for iOS + iOS Simulator + Mac Catalyst and
    combines the results into a single `.xcframework` under `<project>/.build/`.
 4. `ApiDefinitions.cs` binds **that slim wrapper** — tens of lines, not thousands. `ObjSharpieBind=False`.
@@ -70,9 +70,9 @@ Crib `firebase_ios/native/shinyfirebase/` — it is the reference implementation
 4. Point the `.csproj` at the Xcode project and import `Firebase-ios.targets` (copy `Shiny.Firebase.iOS.Binding.csproj`):
    `<XcodeProject>`, `<ObjSharpieBind>False`, one `<NativeReference>` to the built `.xcframework`,
    `NoBindingEmbedding=true`.
-5. `dotnet build -f net10.0-ios` and iterate.
-6. Reference it from `Shiny.DocumentDb.Firestore.Mobile` under a `net10.0-ios` condition, add the
-   `net10.0-ios` TFM, and implement `Platforms/iOS/` mirroring the Android partials.
+5. `dotnet build -f net11.0-ios` and iterate.
+6. Reference it from `Shiny.DocumentDb.Firestore.Mobile` under a `net11.0-ios` condition, add the
+   `net11.0-ios` TFM, and implement `Platforms/iOS/` mirroring the Android partials.
 
 ## Watch-outs
 

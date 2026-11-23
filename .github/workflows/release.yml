@@ -1,0 +1,163 @@
+name: Release
+
+# Two product lines ship from this repo, each released by its own tag. The tag is the version - there is nothing to
+# bump in the repo (Directory.Build.props defaults both lines to 0.0.0-dev).
+#
+#   v7.0.0            -> Shiny.Push.FirebaseMessaging + Shiny.Firebase.iOS.Binding,
+#                        Shiny.Firebase.Firestore.iOS.Binding, Shiny.Firebase.Firestore.Android.Binding
+#   firestore-v5.0.0  -> Shiny.DocumentDb.Firestore.Mobile
+#
+# The Firestore bindings ride the Push line, so a Firestore release depends on them at the nearest v* tag behind the
+# released commit. That tag must exist - release the Push line first if the bindings changed. Tags only started with
+# v7.0.0 / firestore-v5.0.0; earlier releases were versioned by Nerdbank.GitVersioning and are not tagged.
+#
+# A suffix after '-' (v7.0.0-beta.1) marks the packages and the GitHub release as prerelease. Or run it by hand with
+# a product and version, which creates the tag on the commit it built. Toolchain pins match ci.yml - bump together.
+on:
+  push:
+    tags: [ 'v*', 'firestore-v*' ]
+  workflow_dispatch:
+    inputs:
+      product:
+        description: 'Product line'
+        required: true
+        type: choice
+        options: [ push, firestore ]
+      version:
+        description: 'Version (e.g. 7.0.0 or 7.0.0-beta.1) - creates the v<version> / firestore-v<version> tag'
+        required: true
+
+permissions:
+  id-token: write   # required for NuGet trusted publishing (OIDC)
+  contents: write   # creates the GitHub release (and the tag, when run by hand)
+
+jobs:
+  release:
+    # same runner as ci.yml - see the note there
+    runs-on: xcode-27
+
+    steps:
+    # full history + tags: a Firestore release looks up the Push-line tag its bindings depend on
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+          fetch-depth: 0
+
+    - name: Version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          PRODUCT="${{ inputs.product }}"
+          VERSION="${{ inputs.version }}"
+        elif [[ "$GITHUB_REF_NAME" == firestore-v* ]]; then
+          PRODUCT=firestore
+          VERSION="${GITHUB_REF_NAME#firestore-v}"
+        else
+          PRODUCT=push
+          VERSION="${GITHUB_REF_NAME#v}"
+        fi
+        if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+          echo "Version '$VERSION' must look like 7.0.0 or 7.0.0-beta.1"; exit 1
+        fi
+
+        if [ "$PRODUCT" = "firestore" ]; then
+          TAG="firestore-v$VERSION"
+          TITLE="Shiny.DocumentDb.Firestore.Mobile $VERSION"
+          PACKAGES="Shiny.DocumentDb.Firestore.Mobile"
+          PUSH_TAG=$(git describe --tags --match 'v[0-9]*' --abbrev=0 HEAD 2>/dev/null || true)
+          if [ -z "$PUSH_TAG" ]; then
+            echo "No v* tag behind this commit - the Firestore bindings have no released version to depend on."
+            echo "Release the Push line (v<version>) first."
+            exit 1
+          fi
+          echo "Firestore bindings dependency: ${PUSH_TAG#v} (from $PUSH_TAG)"
+          echo "PUSH_VERSION=${PUSH_TAG#v}" >> "$GITHUB_ENV"
+          echo "FIRESTORE_VERSION=$VERSION" >> "$GITHUB_ENV"
+        else
+          TAG="v$VERSION"
+          TITLE="Shiny.Push.FirebaseMessaging $VERSION"
+          PACKAGES="Shiny.Push.FirebaseMessaging Shiny.Firebase.iOS.Binding Shiny.Firebase.Firestore.iOS.Binding Shiny.Firebase.Firestore.Android.Binding"
+          echo "PUSH_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "FIRESTORE_VERSION=0.0.0-dev" >> "$GITHUB_ENV"
+        fi
+
+        echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+        echo "TAG=$TAG" >> "$GITHUB_ENV"
+        echo "TITLE=$TITLE" >> "$GITHUB_ENV"
+        echo "PACKAGES=$PACKAGES" >> "$GITHUB_ENV"
+        if [[ "$VERSION" == *-* ]]; then echo "PRERELEASE=--prerelease" >> "$GITHUB_ENV"; fi
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+          dotnet-version: '11.0.100'
+          workloads: maui-ios, maui-android
+
+    - name: Select Xcode 27.2
+      run: sudo xcode-select -s /Applications/Xcode_27.2.app/Contents/Developer && xcodebuild -version
+
+    - name: Resolve SPM Dependencies
+      run: |
+        xcodebuild -project firebase_ios/native/shinyfirebase/ShinyFirebase.xcodeproj -scheme ShinyFirebase -resolvePackageDependencies
+        xcodebuild -project firebase_ios/native/firestore/ShinyFirebaseFirestore.xcodeproj -scheme ShinyFirebaseFirestore -resolvePackageDependencies
+
+    # Release packs on build (GeneratePackageOnBuild). Never -p:Version: it is global and would stamp both lines.
+    - name: Build
+      run: >
+        dotnet build Firebase.slnx /restore -m
+        -property:Configuration=Release
+        -property:PushVersion="$PUSH_VERSION"
+        -property:FirestoreVersion="$FIRESTORE_VERSION"
+
+    - name: Test
+      run: dotnet test tests/Shiny.DocumentDb.Firestore.Mobile.Tests --configuration Release --no-build
+
+    # only this product line's packages, at this version - the other line builds too but is never published here
+    - name: Collect packages
+      run: |
+        mkdir -p artifacts
+        for p in $PACKAGES; do
+          found=$(find src -path '*/bin/Release/*' \( -name "$p.$VERSION.nupkg" -o -name "$p.$VERSION.snupkg" \))
+          if [ -z "$found" ]; then echo "Missing package $p $VERSION"; exit 1; fi
+          cp $found artifacts/
+        done
+        ls artifacts
+
+    - name: Publish Artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: nugets
+        path: artifacts/*
+        if-no-files-found: error
+
+    - name: NuGet Login (OIDC)
+      id: nuget-login
+      uses: NuGet/login@v1
+      with:
+        user: aritchie
+
+    # NuGet first: the GitHub release only appears once the packages it points at are live. The .snupkg files are
+    # pushed alongside their .nupkg. --skip-duplicate so a re-run after a partial failure pushes only what is missing.
+    - name: Publish NuGets
+      run: >
+        dotnet nuget push "artifacts/*.nupkg"
+        --source https://api.nuget.org/v3/index.json
+        --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}"
+        --skip-duplicate
+
+    - name: GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: >
+        gh release create "$TAG"
+        --repo "${{ github.repository }}"
+        --title "$TITLE"
+        --notes "Release notes: https://shinylib.net"
+        --generate-notes
+        --target "$GITHUB_SHA"
+        $PRERELEASE
+
+  # only after the packages and the GitHub release are out, so the published skills match a shipped version
+  skills:
+    needs: release
+    uses: ./.github/workflows/sync-skills.yml
+    secrets: inherit

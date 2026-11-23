@@ -10,11 +10,30 @@ public class Application
     static void Main(string[] args) => UIApplication.Main(args, null, typeof(AppDelegate));
 }
 
+[Register("SceneDelegate")]
+public class SceneDelegate : UIResponder, IUIWindowSceneDelegate
+{
+    [Export("window")]
+    public UIWindow? Window { get; set; }
+
+    [Export("scene:willConnectToSession:options:")]
+    public void WillConnect(UIScene scene, UISceneSession session, UISceneConnectionOptions connectionOptions)
+    {
+        var windowScene = (UIWindowScene)scene;
+        this.Window = new UIWindow(windowScene);
+        var vc = new UIViewController();
+        var label = new UILabel(this.Window.Bounds) { TextAlignment = UITextAlignment.Center, Text = "running…" };
+        vc.View!.AddSubview(label);
+        this.Window.RootViewController = vc;
+        this.Window.MakeKeyAndVisible();
+
+        ((AppDelegate)UIApplication.SharedApplication.Delegate).Start(label);
+    }
+}
+
 [Register("AppDelegate")]
 public class AppDelegate : UIApplicationDelegate
 {
-    public override UIWindow? Window { get; set; }
-
     readonly List<string> results = new();
 
     void Result(string line)
@@ -33,22 +52,17 @@ public class AppDelegate : UIApplicationDelegate
         }
     }
 
-    public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
-    {
-        this.Window = new UIWindow(UIScreen.MainScreen.Bounds);
-        var vc = new UIViewController();
-        var label = new UILabel(this.Window.Bounds) { TextAlignment = UITextAlignment.Center, Text = "running…" };
-        vc.View!.AddSubview(label);
-        this.Window.RootViewController = vc;
-        this.Window.MakeKeyAndVisible();
+    public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions) => true;
 
-        _ = Task.Run(async () =>
-        {
-            var overall = await this.RunAsync();
-            this.BeginInvokeOnMainThread(() => label.Text = overall);
-        });
-        return true;
-    }
+    // The iOS 27 SDK requires the UIKit scene lifecycle (MT7199) — the window lives in SceneDelegate.
+    public override UISceneConfiguration GetConfiguration(UIApplication application, UISceneSession connectingSceneSession, UISceneConnectionOptions options)
+        => new("Default Configuration", connectingSceneSession.Role);
+
+    internal void Start(UILabel label) => _ = Task.Run(async () =>
+    {
+        var overall = await this.RunAsync();
+        label.BeginInvokeOnMainThread(() => label.Text = overall);
+    });
 
     async Task<string> RunAsync()
     {

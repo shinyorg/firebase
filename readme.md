@@ -17,6 +17,9 @@ Firebase SDKs
 
 # Firebase Cloud Messaging
 
+Requires .NET 11 and the Shiny 7 client packages (`Shiny.Push` 7.0.0). Keep every `Shiny.*` client reference on
+the same major as this package — a .NET 10 / Shiny 6 app stays on 6.x.
+
 ## Features
 
 - Firebase Cloud Messaging for iOS and Android
@@ -24,7 +27,7 @@ Firebase SDKs
 - Manual configuration support
 - Topic subscription support (iOS)
 - Custom push delegate for handling notification events
-- Native iOS Firebase SDK 12.x via a single Slim Binding framework — one embedded copy of FirebaseCore, so
+- Native iOS Firebase SDK 13.x via a single Slim Binding framework — one embedded copy of FirebaseCore, so
   there is no duplicate-`FIRApp` collision between the Core, Messaging and Analytics shims
 - Ships an Apple privacy manifest (`PrivacyInfo.xcprivacy`) merged from every Firebase SDK linked into the iOS
   framework, so App Store Connect does not reject the upload with ITMS-91061
@@ -134,12 +137,12 @@ service account. This one runs **on the device**, under the end user's Firebase 
 - iOS framework ships a merged Apple privacy manifest for Firestore and its dependencies (ITMS-91061)
 - Trim/AOT clean — pass a `JsonTypeInfo<T>` (and set `UseReflectionFallback = false`) for full-AOT builds
 
-Requires `Shiny.DocumentDb` 14.0.0 or later.
+Requires `Shiny.DocumentDb` 14.4.0 or later and .NET 11.
 
 ## Platform support
 
 **Android and iOS**, over first-party Shiny bindings to the native Firebase SDKs. Both heads are verified
-end-to-end against the Firestore emulator (CRUD, real-time, query, identity). The `net10.0` target is a
+end-to-end against the Firestore emulator (CRUD, real-time, query, identity). The `net11.0` target is a
 throw-stub (`PlatformNotSupportedException`) so the surface stays unit-testable without a device.
 
 ## Installation

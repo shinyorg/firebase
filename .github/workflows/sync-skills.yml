@@ -1,11 +1,8 @@
 name: Sync Skills
 
+# Called by release.yml after a release ships, so the published skills match a shipped version. Or run by hand.
 on:
-  push:
-    branches:
-      - 'v*'
-    paths:
-      - 'skills/**'
+  workflow_call:
   workflow_dispatch:
 
 jobs:
